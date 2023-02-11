@@ -118,9 +118,18 @@ class UserController extends BaseController
         $item = User::query()->findOrFail($id);
 
         try {
+            DB::beginTransaction();
+
+            if ($item->id == auth()->id()) {
+                return $this->sendError('Não é possível excluir seu próprio usuário !', 403);
+            }
+
             $item->delete();
+
+            DB::commit();
             return $this->sendResponse([], 'Registro deletado com sucesso !');
         } catch (\Throwable $th) {
+            DB::rollBack();
             return $this->sendError('Registro vinculado à outra tabela, somente poderá ser excluído se retirar o vínculo !');
         }
     }
