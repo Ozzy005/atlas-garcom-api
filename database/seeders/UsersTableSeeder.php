@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class UsersTableSeeder extends Seeder
 {
@@ -18,7 +19,7 @@ class UsersTableSeeder extends Seeder
                 ['email' => 'admin@atlasgarcom.com'],
                 [
                     'name' => 'Atlas Garçom',
-                    'password' => bcrypt('1234567o'),
+                    'password' => Hash::make('1234567o'),
                 ]
             );
     }
