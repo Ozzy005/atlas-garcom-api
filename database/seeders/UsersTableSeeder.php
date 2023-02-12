@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -14,7 +15,7 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        $user = \App\Models\User::query()
+        $user = User::query()
             ->updateOrcreate(
                 ['email' => 'admin@atlasgarcom.com'],
                 [
@@ -22,5 +23,7 @@ class UsersTableSeeder extends Seeder
                     'password' => Hash::make('1234567o'),
                 ]
             );
+
+        $user->assignRole('administrator');
     }
 }
