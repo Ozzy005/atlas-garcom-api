@@ -26,25 +26,26 @@ class DefenderSeeder extends Seeder
 
             $array = Permission::permissions;
 
-            function percorrerArray($array, $parent = null)
+            function loop($array, $parent = null)
             {
                 foreach ($array as $value) {
                     if (array_key_exists('name', $value)) {
-                        $permission = Permission::updateOrCreate(
-                            ['name' => $value['name']],
-                            [
-                                'description' => $value['description'],
-                                'parent_id' => $parent ? $parent->id : null,
-                            ]
-                        );
+                        $permission = Permission::query()
+                            ->updateOrCreate(
+                                ['name' => $value['name']],
+                                [
+                                    'description' => $value['description'],
+                                    'parent_id' => $parent ? $parent->id : null,
+                                ]
+                            );
                         if (array_key_exists('children', $value)) {
-                            percorrerArray($value['children'], $permission);
+                            loop($value['children'], $permission);
                         }
                     }
                 }
             }
 
-            percorrerArray($array);
+            loop($array);
         });
     }
 

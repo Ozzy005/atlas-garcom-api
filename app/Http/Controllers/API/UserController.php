@@ -28,9 +28,20 @@ class UserController extends BaseController
      */
     public function index(Request $request): JsonResponse
     {
-        $query = User::query();
+        $query = User::query()
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%');
+            })
+            ->when(
+                $request->filled('sortBy') && $request->filled('descending'),
+                fn ($query) => $query->orderBy(
+                    $request->sortBy,
+                    filter_var($request->descending, FILTER_VALIDATE_BOOLEAN) ? 'desc' : 'asc'
+                )
+            );
 
-        $data = $request->filled('page') ? $query->paginate(10) : $query->get();
+        $data = $request->filled('page') ? $query->paginate($request->rowsPerPage ?? 10) : $query->get();
 
         return $this->sendResponse($data);
     }
