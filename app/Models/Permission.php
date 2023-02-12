@@ -42,9 +42,7 @@ class Permission extends \Spatie\Permission\Models\Permission
                     'description' => 'Permissões',
                     'children' => [
                         array('name' => 'permissions_view', 'description' => 'Visualizar'),
-                        array('name' => 'permissions_create', 'description' => 'Criar'),
-                        array('name' => 'permissions_edit', 'description' => 'Editar'),
-                        array('name' => 'permissions_delete', 'description' => 'Deletar')
+                        array('name' => 'permissions_edit', 'description' => 'Editar')
                     ]
                 ]
             ]
