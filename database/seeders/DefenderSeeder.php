@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Permission;
 use App\Models\Role;
-use App\Models\Rule;
 use Illuminate\Support\Facades\DB;
 
 class DefenderSeeder extends Seeder
