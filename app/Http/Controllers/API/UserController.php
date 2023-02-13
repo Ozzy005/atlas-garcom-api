@@ -69,7 +69,8 @@ class UserController extends BaseController
             $inputs = $request->all();
             $inputs['password'] = Hash::make($inputs['password']);
 
-            User::query()->create($inputs);
+            $user = User::query()->create($inputs);
+            $user->roles()->sync($inputs['roles']);
 
             DB::commit();
             return $this->sendResponse([], 'Registro criado com sucesso !', 201);
@@ -87,7 +88,9 @@ class UserController extends BaseController
      */
     public function show($id): JsonResponse
     {
-        $item = User::query()->findOrFail($id);
+        $item = User::query()
+            ->with('roles')
+            ->findOrFail($id);
 
         return $this->sendResponse($item);
     }
@@ -115,7 +118,10 @@ class UserController extends BaseController
         try {
             DB::beginTransaction();
 
-            $item->fill($request->all())->save();
+            $inputs = $request->all();
+
+            $item->fill($inputs)->save();
+            $item->roles()->sync($inputs['roles']);
 
             DB::commit();
             return $this->sendResponse([], 'Registro editado com sucesso !');
@@ -159,7 +165,9 @@ class UserController extends BaseController
         $rules = [
             'name' => ['required', 'string', 'max:60'],
             'email' => ['required', 'string', 'max:100', Rule::unique('users')->ignore($primaryKey)],
-            'password' => ['confirmed', Rule::requiredIf(fn () => $request->isMethod('post')), Rules\Password::defaults()]
+            'password' => ['confirmed', Rule::requiredIf(fn () => $request->isMethod('post')), Rules\Password::defaults()],
+            'roles' => ['required', 'array'],
+            'roles.*' => ['required', Rule::exists('roles', 'id')]
         ];
 
         $messages = [];
