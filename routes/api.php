@@ -14,12 +14,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth'])->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', App\Http\Controllers\API\DashboardController::class);
+    Route::put('profile', [App\Http\Controllers\API\ProfileController::class, 'update']);
+    Route::get('profile', [App\Http\Controllers\API\ProfileController::class, 'show']);
     Route::put('change-password', App\Http\Controllers\API\ChangePasswordController::class);
 
     Route::apiResource('users', App\Http\Controllers\API\UserController::class);
