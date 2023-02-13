@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Kalnoy\Nestedset\NodeTrait;
 
 class Permission extends \Spatie\Permission\Models\Permission
 {
-    use NodeTrait;
+    use HasFactory, NodeTrait;
 
     const permissions = [
         [

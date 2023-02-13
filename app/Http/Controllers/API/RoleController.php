@@ -2,23 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\User;
+use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules;
 
-class UserController extends BaseController
+class RoleController extends BaseController
 {
     public function __construct()
     {
-        $this->middleware('permission:users_create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:users_edit', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:users_view', ['only' => ['show', 'index']]);
-        $this->middleware('permission:users_delete', ['only' => ['destroy']]);
+        $this->middleware('permission:roles_create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:roles_edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:roles_view', ['only' => ['show', 'index']]);
+        $this->middleware('permission:roles_delete', ['only' => ['destroy']]);
     }
 
     /**
@@ -28,10 +26,10 @@ class UserController extends BaseController
      */
     public function index(Request $request): JsonResponse
     {
-        $query = User::query()
+        $query = Role::query()
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('email', 'like', '%' . $request->search . '%');
+                    ->orWhere('description', 'like', '%' . $request->search . '%');
             })
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
@@ -67,9 +65,9 @@ class UserController extends BaseController
             DB::beginTransaction();
 
             $inputs = $request->all();
-            $inputs['password'] = Hash::make($inputs['password']);
 
-            User::query()->create($inputs);
+            $role = Role::query()->create($inputs);
+            $role->permissions()->sync($inputs['permission_ids']);
 
             DB::commit();
             return $this->sendResponse([], 'Registro criado com sucesso !', 201);
@@ -87,7 +85,11 @@ class UserController extends BaseController
      */
     public function show($id): JsonResponse
     {
-        $item = User::query()->findOrFail($id);
+        $item = Role::query()
+            ->with('permissions')
+            ->findOrFail($id);
+
+        $item->permission_ids = $item->permissions->pluck('id');
 
         return $this->sendResponse($item);
     }
@@ -101,7 +103,7 @@ class UserController extends BaseController
      */
     public function update(Request $request, $id): JsonResponse
     {
-        $item = User::query()->findOrFail($id);
+        $item = Role::query()->findOrFail($id);
 
         $validator = Validator::make(
             $request->all(),
@@ -112,10 +114,17 @@ class UserController extends BaseController
             return $this->sendError('Erro de Validação !', $validator->errors()->toArray(), 422);
         }
 
+        if ($item->name == 'administrator') {
+            return $this->sendError('Não é possível editar a atribuição do administrador !', [], 403);
+        }
+
         try {
             DB::beginTransaction();
 
-            $item->fill($request->all())->save();
+            $inputs = $request->all();
+
+            $item->fill($inputs)->save();
+            $item->permissions()->sync($inputs['permission_ids']);
 
             DB::commit();
             return $this->sendResponse([], 'Registro editado com sucesso !');
@@ -133,15 +142,19 @@ class UserController extends BaseController
      */
     public function destroy($id): JsonResponse
     {
-        $item = User::query()->findOrFail($id);
+        $item = Role::query()
+            ->with('permissions', 'users')
+            ->findOrFail($id);
 
         try {
             DB::beginTransaction();
 
-            if ($item->id == auth()->id()) {
-                return $this->sendError('Não é possível excluir seu próprio usuário !', [], 403);
-            } else if ($item->id == 1) {
-                return $this->sendError('Não é possível excluir o usuário administrador !', [], 403);
+            if ($item->permissions->isNotEmpty()) {
+                return $this->sendError('Não é possível deletar pois existem permissões vinculadas a esta atribuição !', [], 403);
+            } else if ($item->users->isNotEmpty()) {
+                return $this->sendError('Não é possível deletar pois existem usuários vinculados a esta atribuição !', [], 403);
+            } else if ($item->name == 'administrator') {
+                return $this->sendError('Não é possível excluir a atribuição do administrador !', [], 403);
             }
 
             $item->delete();
@@ -157,9 +170,10 @@ class UserController extends BaseController
     private function rules(Request $request, $primaryKey = null, bool $changeMessages = false)
     {
         $rules = [
-            'name' => ['required', 'string', 'max:60'],
-            'email' => ['required', 'string', 'max:100', Rule::unique('users')->ignore($primaryKey)],
-            'password' => ['confirmed', Rule::requiredIf(fn () => $request->isMethod('post')), Rules\Password::defaults()]
+            'name' => ['required', 'string', 'max:125', Rule::unique('roles')->ignore($primaryKey)],
+            'description' => ['required', 'string', 'max:125'],
+            'permission_ids' => ['array', Rule::requiredIf(fn () => $request->isMethod('post'))],
+            'permission_ids.*' => [Rule::requiredIf(fn () => $request->isMethod('post')), Rule::exists('permissions', 'id')],
         ];
 
         $messages = [];

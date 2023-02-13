@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Rules\CurrentPasswordCheckRule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
@@ -31,12 +32,18 @@ class ChangePasswordController extends BaseController
             return $this->sendError('Erro de Validação !', $validator->errors()->toArray(), 422);
         }
 
-        User::query()
-            ->where('id', auth()->id())
-            ->update([
-                'password' => Hash::make($request->password)
-            ]);
+        try {
+            DB::beginTransaction();
 
-        return $this->sendResponse([], 'Senha alterada com sucesso !');
+            User::query()
+                ->where('id', auth()->id())
+                ->update(['password' => Hash::make($request->password)]);
+
+            DB::commit();
+            return $this->sendResponse([], 'Senha alterada com sucesso !');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->sendError($th->getMessage());
+        }
     }
 }

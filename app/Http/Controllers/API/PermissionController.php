@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\Permission;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules;
 
 class PermissionController extends BaseController
 {
@@ -41,6 +38,18 @@ class PermissionController extends BaseController
             );
 
         $data = $request->filled('page') ? $query->paginate($request->rowsPerPage ?? 10) : $query->get();
+
+        return $this->sendResponse($data);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function permissionsToTree(): JsonResponse
+    {
+        $data = Permission::query()->get()->toTree();
 
         return $this->sendResponse($data);
     }
