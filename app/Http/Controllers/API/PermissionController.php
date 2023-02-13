@@ -90,7 +90,7 @@ class PermissionController extends BaseController
         try {
             DB::beginTransaction();
 
-            $item->fill($request->all())->save();
+            $item->fill(['description' => $request->description])->save();
 
             DB::commit();
             return $this->sendResponse([], 'Registro editado com sucesso !');
@@ -103,7 +103,6 @@ class PermissionController extends BaseController
     private function rules(Request $request, $primaryKey = null, bool $changeMessages = false)
     {
         $rules = [
-            'name' => ['required', 'string', 'max:125', Rule::unique('permissions')->ignore($primaryKey)],
             'description' => ['required', 'string', 'max:125']
         ];
 
