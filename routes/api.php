@@ -19,6 +19,7 @@ Route::middleware(['auth'])->get('/user', function (Request $request) {
 });
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('dashboard', App\Http\Controllers\API\DashboardController::class);
     Route::put('change-password', App\Http\Controllers\API\ChangePasswordController::class);
 
     Route::apiResource('users', App\Http\Controllers\API\UserController::class);

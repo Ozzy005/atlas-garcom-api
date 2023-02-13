@@ -11,7 +11,7 @@ class Permission extends \Spatie\Permission\Models\Permission
 
     const permissions = [
         [
-            'name' => 'home',
+            'name' => 'dashboard_view',
             'description' => 'Painel'
         ],
         [
