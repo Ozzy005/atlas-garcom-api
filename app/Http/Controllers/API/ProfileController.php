@@ -20,6 +20,8 @@ class ProfileController extends BaseController
     {
         $item = User::query()->findOrFail(auth()->id());
 
+        $item->permissions = $item->getPermissionsViaRoles();
+
         return $this->sendResponse($item);
     }
 
