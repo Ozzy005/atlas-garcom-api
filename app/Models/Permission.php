@@ -15,6 +15,32 @@ class Permission extends \Spatie\Permission\Models\Permission
             'description' => 'Painel'
         ],
         [
+            'name' => 'registrations_view',
+            'description' => 'Cadastros',
+            'children' => [
+                [
+                    'name' => 'general_view',
+                    'description' => 'Geral',
+                    'children' => [
+                        [
+                            'name' => 'states_group_view',
+                            'description' => 'Estados',
+                            'children' => [
+                                array('name' => 'states_view', 'description' => 'Visualizar')
+                            ]
+                        ],
+                        [
+                            'name' => 'cities_group_view',
+                            'description' => 'Cidades',
+                            'children' => [
+                                array('name' => 'cities_view', 'description' => 'Visualizar')
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        [
             'name' => 'management_group_view',
             'description' => 'Gerenciamento',
             'children' => [

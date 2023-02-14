@@ -16,11 +16,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', App\Http\Controllers\API\DashboardController::class);
-    Route::get('user-permissions', [App\Http\Controllers\API\PermissionController::class, 'userPermissions']);
     Route::put('profile', [App\Http\Controllers\API\ProfileController::class, 'update']);
     Route::get('profile', [App\Http\Controllers\API\ProfileController::class, 'show']);
+    Route::get('user-permissions', [App\Http\Controllers\API\PermissionController::class, 'userPermissions']);
     Route::put('change-password', App\Http\Controllers\API\ChangePasswordController::class);
 
+    Route::apiResource('states', App\Http\Controllers\API\StateController::class)->only(['index', 'show']);
+    Route::apiResource('cities', App\Http\Controllers\API\CityController::class)->only(['index', 'show']);
     Route::apiResource('users', App\Http\Controllers\API\UserController::class);
     Route::apiResource('roles', App\Http\Controllers\API\RoleController::class);
     Route::apiResource('permissions', App\Http\Controllers\API\PermissionController::class)->only(['index', 'show', 'update']);
