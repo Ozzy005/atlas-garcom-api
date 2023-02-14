@@ -17,7 +17,8 @@ class City extends Model
      * @var array
      */
     protected $appends = [
-        'info'
+        'info',
+        'state_name'
     ];
 
     /**
@@ -39,6 +40,18 @@ class City extends Model
     {
         return new Attribute(
             get: fn () => $this->title . ' - ' . $this->state->letter
+        );
+    }
+
+    /**
+     * Get the state name.
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    public function stateName(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->state->title
         );
     }
 }
