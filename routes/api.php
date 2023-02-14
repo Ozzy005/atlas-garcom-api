@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', App\Http\Controllers\API\DashboardController::class);
+    Route::get('user-permissions', [App\Http\Controllers\API\PermissionController::class, 'userPermissions']);
     Route::put('profile', [App\Http\Controllers\API\ProfileController::class, 'update']);
     Route::get('profile', [App\Http\Controllers\API\ProfileController::class, 'show']);
     Route::put('change-password', App\Http\Controllers\API\ChangePasswordController::class);

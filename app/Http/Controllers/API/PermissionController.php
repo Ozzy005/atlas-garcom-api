@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\Permission;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class PermissionController extends BaseController
 {
@@ -43,7 +43,7 @@ class PermissionController extends BaseController
     }
 
     /**
-     * Display a listing of the resource.
+     * Display a tree resource listing.
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -52,6 +52,20 @@ class PermissionController extends BaseController
         $data = Permission::query()->get()->toTree();
 
         return $this->sendResponse($data);
+    }
+
+    /**
+     * Display authenticated user permissions.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function userPermissions(): JsonResponse
+    {
+        $user = User::query()->findOrFail(auth()->id());
+
+        $permissions = $user->getPermissionsViaRoles();
+
+        return $this->sendResponse($permissions);
     }
 
     /**
