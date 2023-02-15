@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Exceptions\HttpException;
+use App\Http\Requests\PersonRequest;
+use App\Models\Person;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rules\Enum;
 
 class UserController extends BaseController
 {
@@ -29,9 +33,14 @@ class UserController extends BaseController
     public function index(Request $request): JsonResponse
     {
         $query = User::query()
+            ->with('person.city.state')
             ->when($request->filled('search'), function ($query) use ($request) {
-                $query->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('email', 'like', '%' . $request->search . '%');
+                $query->whereHas('person', function ($query) use ($request) {
+                    $query->whereRaw('(replace(replace(replace(nif, ".", ""), "/", ""), "-", "") like "%' . removeMask($request->search) . '%")')
+                        ->orWhere('full_name', 'like', '%' . $request->search . '%')
+                        ->orWhere('name', 'like', '%' . $request->search . '%')
+                        ->orWhere('email', 'like', '%' . $request->search . '%');
+                });
             })
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
@@ -52,31 +61,45 @@ class UserController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request): JsonResponse
+    public function store(PersonRequest $request): JsonResponse
     {
         $validator = Validator::make(
             $request->all(),
             $this->rules($request)
         );
 
-        if ($validator->fails()) {
-            return $this->sendError('Erro de Validação !', $validator->errors()->toArray(), 422);
-        }
-
         try {
+            if ($validator->fails()) {
+                throw new HttpException('Erro de validação!', $validator->errors()->toArray(), 422);
+            }
+
             DB::beginTransaction();
 
             $inputs = $request->all();
+
+            $person = Person::query()->create($inputs);
+
+            $inputs['person_id'] = $person->id;
+            $inputs['name'] = $person->full_name;
             $inputs['password'] = Hash::make($inputs['password']);
 
             $user = User::query()->create($inputs);
             $user->roles()->sync($inputs['roles']);
 
             DB::commit();
-            return $this->sendResponse([], 'Registro criado com sucesso !', 201);
+            return $this->sendResponse([], 'Registro criado com sucesso!', 201);
         } catch (\Throwable $th) {
-            DB::rollBack();
-            return $this->sendError($th->getMessage());
+            $msg = 'Erro interno do servidor!';
+            $code = 500;
+            $errors = [];
+
+            if ($th instanceof HttpException) {
+                $msg = $th->getMessage();
+                $code = $th->getCode();
+                $errors = $th->getErrors();
+            }
+
+            return $this->sendError($msg, $errors, $code);
         }
     }
 
@@ -89,7 +112,7 @@ class UserController extends BaseController
     public function show($id): JsonResponse
     {
         $item = User::query()
-            ->with('roles')
+            ->with('person.city.state', 'roles')
             ->findOrFail($id);
 
         return $this->sendResponse($item);
@@ -102,32 +125,48 @@ class UserController extends BaseController
      * @param  int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(PersonRequest $request, $id): JsonResponse
     {
         $item = User::query()->findOrFail($id);
 
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request, $item->id)
+            $this->rules($request, $item)
         );
 
-        if ($validator->fails()) {
-            return $this->sendError('Erro de Validação !', $validator->errors()->toArray(), 422);
-        }
-
         try {
+            if ($validator->fails()) {
+                throw new HttpException('Erro de validação!', $validator->errors()->toArray(), 422);
+            }
+            if ($item->id == 1) {
+                throw new HttpException('Não é possível editar o usuário administrador!', [], 403);
+            }
+
             DB::beginTransaction();
 
             $inputs = $request->all();
+
+            $item->person->fill($inputs)->save();
+
+            $inputs['name'] = $item->person->full_name;
 
             $item->fill($inputs)->save();
             $item->roles()->sync($inputs['roles']);
 
             DB::commit();
-            return $this->sendResponse([], 'Registro editado com sucesso !');
+            return $this->sendResponse([], 'Registro editado com sucesso!');
         } catch (\Throwable $th) {
-            DB::rollBack();
-            return $this->sendError($th->getMessage());
+            $msg = 'Erro interno do servidor!';
+            $code = 500;
+            $errors = [];
+
+            if ($th instanceof HttpException) {
+                $msg = $th->getMessage();
+                $code = $th->getCode();
+                $errors = $th->getErrors();
+            }
+
+            return $this->sendError($msg, $errors, $code);
         }
     }
 
@@ -142,29 +181,40 @@ class UserController extends BaseController
         $item = User::query()->findOrFail($id);
 
         try {
-            DB::beginTransaction();
-
             if ($item->id == auth()->id()) {
-                return $this->sendError('Não é possível excluir seu próprio usuário !', [], 403);
-            } else if ($item->id == 1) {
-                return $this->sendError('Não é possível excluir o usuário administrador !', [], 403);
+                throw new HttpException('Não é possível excluir seu próprio usuário!', [], 403);
             }
+            if ($item->id == 1) {
+                throw new HttpException('Não é possível excluir o usuário do administrador!', [], 403);
+            }
+
+            DB::beginTransaction();
 
             $item->delete();
 
             DB::commit();
-            return $this->sendResponse([], 'Registro deletado com sucesso !');
+            return $this->sendResponse([], 'Registro deletado com sucesso!');
         } catch (\Throwable $th) {
-            DB::rollBack();
-            return $this->sendError('Registro vinculado à outra tabela, somente poderá ser excluído se retirar o vínculo !');
+            $msg = 'Este registro está vinculado a outra tabela. Por favor, remova o vínculo antes de excluir!';
+            $code = 500;
+            $errors = [];
+
+            if ($th instanceof HttpException) {
+                $msg = $th->getMessage();
+                $code = $th->getCode();
+                $errors = $th->getErrors();
+            }
+
+            return $this->sendError($msg, $errors, $code);
         }
     }
 
-    private function rules(Request $request, $primaryKey = null, bool $changeMessages = false)
+    private function rules(Request $request, $item = null, bool $changeMessages = false)
     {
         $rules = [
-            'name' => ['required', 'string', 'max:60'],
-            'email' => ['required', 'string', 'max:100', Rule::unique('users')->ignore($primaryKey)],
+            'nif' => [Rule::unique('people')->ignore($item->person_id ?? null)],
+            'status' => ['required', 'integer', new Enum(\App\Enums\Status::class)],
+            'email' => [Rule::unique('people')->ignore($item->person_id ?? null)],
             'password' => ['confirmed', Rule::requiredIf(fn () => $request->isMethod('post')), Rules\Password::defaults()],
             'roles' => ['required', 'array'],
             'roles.*' => ['required', Rule::exists('roles', 'id')]

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Exceptions\HttpException;
 use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -94,27 +95,36 @@ class PermissionController extends BaseController
 
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request, $item->id)
+            $this->rules($request, $item)
         );
 
-        if ($validator->fails()) {
-            return $this->sendError('Erro de Validação !', $validator->errors()->toArray(), 422);
-        }
-
         try {
+            if ($validator->fails()) {
+                throw new HttpException('Erro de validação!', $validator->errors()->toArray(), 422);
+            }
+
             DB::beginTransaction();
 
             $item->fill(['description' => $request->description])->save();
 
             DB::commit();
-            return $this->sendResponse([], 'Registro editado com sucesso !');
+            return $this->sendResponse([], 'Registro editado com sucesso!');
         } catch (\Throwable $th) {
-            DB::rollBack();
-            return $this->sendError($th->getMessage());
+            $msg = 'Erro interno do servidor!';
+            $code = 500;
+            $errors = [];
+
+            if ($th instanceof HttpException) {
+                $msg = $th->getMessage();
+                $code = $th->getCode();
+                $errors = $th->getErrors();
+            }
+
+            return $this->sendError($msg, $errors, $code);
         }
     }
 
-    private function rules(Request $request, $primaryKey = null, bool $changeMessages = false)
+    private function rules(Request $request, $item = null, bool $changeMessages = false)
     {
         $rules = [
             'description' => ['required', 'string', 'max:125']

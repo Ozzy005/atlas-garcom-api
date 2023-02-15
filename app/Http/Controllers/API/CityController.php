@@ -21,6 +21,7 @@ class CityController extends BaseController
     public function index(Request $request): JsonResponse
     {
         $query = City::query()
+            ->with('state')
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where('title', 'like', '%' . $request->search . '%')
                     ->orWhereHas('state', function ($query) use ($request) {

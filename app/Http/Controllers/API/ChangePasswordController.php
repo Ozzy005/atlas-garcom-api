@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Exceptions\HttpException;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -28,11 +29,11 @@ class ChangePasswordController extends BaseController
             ]
         );
 
-        if ($validator->fails()) {
-            return $this->sendError('Erro de Validação !', $validator->errors()->toArray(), 422);
-        }
-
         try {
+            if ($validator->fails()) {
+                throw new HttpException('Erro de validação!', $validator->errors()->toArray(), 422);
+            }
+
             DB::beginTransaction();
 
             User::query()
@@ -40,10 +41,19 @@ class ChangePasswordController extends BaseController
                 ->update(['password' => Hash::make($request->password)]);
 
             DB::commit();
-            return $this->sendResponse([], 'Senha alterada com sucesso !');
+            return $this->sendResponse([], 'Senha alterada com sucesso!');
         } catch (\Throwable $th) {
-            DB::rollBack();
-            return $this->sendError($th->getMessage());
+            $msg = 'Erro interno do servidor!';
+            $code = 500;
+            $errors = [];
+
+            if ($th instanceof HttpException) {
+                $msg = $th->getMessage();
+                $code = $th->getCode();
+                $errors = $th->getErrors();
+            }
+
+            return $this->sendError($msg, $errors, $code);
         }
     }
 }

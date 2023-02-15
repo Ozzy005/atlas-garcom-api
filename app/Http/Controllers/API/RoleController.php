@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Exceptions\HttpException;
 use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -57,23 +58,31 @@ class RoleController extends BaseController
             $this->rules($request)
         );
 
-        if ($validator->fails()) {
-            return $this->sendError('Erro de Validação !', $validator->errors()->toArray(), 422);
-        }
-
         try {
+            if ($validator->fails()) {
+                throw new HttpException('Erro de validação!', $validator->errors()->toArray(), 422);
+            }
+
             DB::beginTransaction();
 
             $inputs = $request->all();
-
             $role = Role::query()->create($inputs);
             $role->permissions()->sync($inputs['permission_ids']);
 
             DB::commit();
-            return $this->sendResponse([], 'Registro criado com sucesso !', 201);
+            return $this->sendResponse([], 'Registro criado com sucesso!', 201);
         } catch (\Throwable $th) {
-            DB::rollBack();
-            return $this->sendError($th->getMessage());
+            $msg = 'Erro interno do servidor!';
+            $code = 500;
+            $errors = [];
+
+            if ($th instanceof HttpException) {
+                $msg = $th->getMessage();
+                $code = $th->getCode();
+                $errors = $th->getErrors();
+            }
+
+            return $this->sendError($msg, $errors, $code);
         }
     }
 
@@ -107,30 +116,37 @@ class RoleController extends BaseController
 
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request, $item->id)
+            $this->rules($request, $item)
         );
 
-        if ($validator->fails()) {
-            return $this->sendError('Erro de Validação !', $validator->errors()->toArray(), 422);
-        }
-
-        if ($item->name == 'administrator') {
-            return $this->sendError('Não é possível editar a atribuição do administrador !', [], 403);
-        }
-
         try {
+            if ($validator->fails()) {
+                throw new HttpException('Erro de validação!', $validator->errors()->toArray(), 422);
+            }
+            if ($item->name == 'administrator') {
+                throw new HttpException('Não é possível editar a atribuição do administrador!', [], 403);
+            }
+
             DB::beginTransaction();
 
             $inputs = $request->all();
-
             $item->fill($inputs)->save();
             $item->permissions()->sync($inputs['permission_ids']);
 
             DB::commit();
-            return $this->sendResponse([], 'Registro editado com sucesso !');
+            return $this->sendResponse([], 'Registro editado com sucesso!');
         } catch (\Throwable $th) {
-            DB::rollBack();
-            return $this->sendError($th->getMessage());
+            $msg = 'Erro interno do servidor!';
+            $code = 500;
+            $errors = [];
+
+            if ($th instanceof HttpException) {
+                $msg = $th->getMessage();
+                $code = $th->getCode();
+                $errors = $th->getErrors();
+            }
+
+            return $this->sendError($msg, $errors, $code);
         }
     }
 
@@ -147,30 +163,42 @@ class RoleController extends BaseController
             ->findOrFail($id);
 
         try {
-            DB::beginTransaction();
 
             if ($item->permissions->isNotEmpty()) {
-                return $this->sendError('Não é possível deletar pois existem permissões vinculadas a esta atribuição !', [], 403);
-            } else if ($item->users->isNotEmpty()) {
-                return $this->sendError('Não é possível deletar pois existem usuários vinculados a esta atribuição !', [], 403);
-            } else if ($item->name == 'administrator') {
-                return $this->sendError('Não é possível excluir a atribuição do administrador !', [], 403);
+                throw new HttpException('Não é possível deletar pois existem permissões vinculadas a esta atribuição!', [], 403);
             }
+            if ($item->users->isNotEmpty()) {
+                throw new HttpException('Não é possível deletar pois existem usuários vinculados a esta atribuição!', [], 403);
+            }
+            if ($item->name == 'administrator') {
+                throw new HttpException('Não é possível excluir a atribuição do administrador!', [], 403);
+            }
+
+            DB::beginTransaction();
 
             $item->delete();
 
             DB::commit();
-            return $this->sendResponse([], 'Registro deletado com sucesso !');
+            return $this->sendResponse([], 'Registro deletado com sucesso!');
         } catch (\Throwable $th) {
-            DB::rollBack();
-            return $this->sendError('Registro vinculado à outra tabela, somente poderá ser excluído se retirar o vínculo !');
+            $msg = 'Este registro está vinculado a outra tabela. Por favor, remova o vínculo antes de excluir!';
+            $code = 500;
+            $errors = [];
+
+            if ($th instanceof HttpException) {
+                $msg = $th->getMessage();
+                $code = $th->getCode();
+                $errors = $th->getErrors();
+            }
+
+            return $this->sendError($msg, $errors, $code);
         }
     }
 
-    private function rules(Request $request, $primaryKey = null, bool $changeMessages = false)
+    private function rules(Request $request, $item = null, bool $changeMessages = false)
     {
         $rules = [
-            'name' => ['required', 'string', 'max:125', Rule::unique('roles')->ignore($primaryKey)],
+            'name' => ['required', 'string', 'max:125', Rule::unique('roles')->ignore($item->id ?? null)],
             'description' => ['required', 'string', 'max:125'],
             'permission_ids' => ['array', Rule::requiredIf(fn () => $request->isMethod('post'))],
             'permission_ids.*' => [Rule::requiredIf(fn () => $request->isMethod('post')), Rule::exists('permissions', 'id')],

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Exceptions\HttpException;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,9 @@ class ProfileController extends BaseController
      */
     public function show(): JsonResponse
     {
-        $item = User::query()->findOrFail(auth()->id());
+        $item = User::query()
+            ->with('person.city.state')
+            ->findOrFail(auth()->id());
 
         return $this->sendResponse($item);
     }
@@ -35,33 +38,41 @@ class ProfileController extends BaseController
 
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request, $item->id)
+            $this->rules($request, $item)
         );
 
-        if ($validator->fails()) {
-            return $this->sendError('Erro de Validação !', $validator->errors()->toArray(), 422);
-        }
-
         try {
+            if ($validator->fails()) {
+                throw new HttpException('Erro de validação!', $validator->errors()->toArray(), 422);
+            }
+
             DB::beginTransaction();
 
             $inputs = $request->all();
-
             $item->fill($inputs)->save();
 
             DB::commit();
-            return $this->sendResponse([], 'Perfil editado com sucesso !');
+            return $this->sendResponse([], 'Perfil editado com sucesso!');
         } catch (\Throwable $th) {
-            DB::rollBack();
-            return $this->sendError($th->getMessage());
+            $msg = 'Erro interno do servidor!';
+            $code = 500;
+            $errors = [];
+
+            if ($th instanceof HttpException) {
+                $msg = $th->getMessage();
+                $code = $th->getCode();
+                $errors = $th->getErrors();
+            }
+
+            return $this->sendError($msg, $errors, $code);
         }
     }
 
-    private function rules(Request $request, $primaryKey = null, bool $changeMessages = false)
+    private function rules(Request $request, $item = null, bool $changeMessages = false)
     {
         $rules = [
             'name' => ['required', 'string', 'max:60'],
-            'email' => ['required', 'string', 'max:100', Rule::unique('users')->ignore($primaryKey)]
+            'email' => ['required', 'string', 'max:100', Rule::unique('users')->ignore($item->id ?? null)]
         ];
 
         $messages = [];
