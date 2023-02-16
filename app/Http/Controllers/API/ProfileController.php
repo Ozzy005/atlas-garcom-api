@@ -34,7 +34,9 @@ class ProfileController extends BaseController
      */
     public function update(Request $request): JsonResponse
     {
-        $item = User::query()->findOrFail(auth()->id());
+        $item = User::query()
+            ->with('person')
+            ->findOrFail(auth()->id());
 
         $validator = Validator::make(
             $request->all(),
@@ -49,6 +51,7 @@ class ProfileController extends BaseController
             DB::beginTransaction();
 
             $inputs = $request->all();
+            $item->person->fill($inputs)->save();
             $item->fill($inputs)->save();
 
             DB::commit();

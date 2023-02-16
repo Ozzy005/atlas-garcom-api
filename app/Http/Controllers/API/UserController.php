@@ -127,7 +127,9 @@ class UserController extends BaseController
      */
     public function update(PersonRequest $request, $id): JsonResponse
     {
-        $item = User::query()->findOrFail($id);
+        $item = User::query()
+            ->with('person')
+            ->findOrFail($id);
 
         $validator = Validator::make(
             $request->all(),
