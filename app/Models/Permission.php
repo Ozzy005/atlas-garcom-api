@@ -19,6 +19,22 @@ class Permission extends \Spatie\Permission\Models\Permission
             'description' => 'Cadastros',
             'children' => [
                 [
+                    'name' => 'people_view',
+                    'description' => 'Pessoas',
+                    'children' => [
+                        [
+                            'name' => 'tenants_group_view',
+                            'description' => 'Contratantes',
+                            'children' => [
+                                array('name' => 'tenants_view', 'description' => 'Visualizar'),
+                                array('name' => 'tenants_create', 'description' => 'Criar'),
+                                array('name' => 'tenants_edit', 'description' => 'Editar'),
+                                array('name' => 'tenants_delete', 'description' => 'Deletar'),
+                            ]
+                        ]
+                    ]
+                ],
+                [
                     'name' => 'general_view',
                     'description' => 'Geral',
                     'children' => [

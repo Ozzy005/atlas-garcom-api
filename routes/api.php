@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,6 +20,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('user-permissions', [App\Http\Controllers\API\PermissionController::class, 'userPermissions']);
     Route::put('change-password', App\Http\Controllers\API\ChangePasswordController::class);
 
+    Route::apiResource('tenants', App\Http\Controllers\API\TenantController::class);
     Route::apiResource('states', App\Http\Controllers\API\StateController::class)->only(['index', 'show']);
     Route::apiResource('cities', App\Http\Controllers\API\CityController::class)->only(['index', 'show']);
     Route::apiResource('users', App\Http\Controllers\API\UserController::class);
