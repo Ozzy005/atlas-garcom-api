@@ -4,11 +4,11 @@ namespace App\Http\Controllers\API;
 
 use App\Exceptions\HttpException;
 use App\Models\User;
+use App\Rules\modelPersonRelationship;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class ProfileController extends BaseController
 {
@@ -40,7 +40,7 @@ class ProfileController extends BaseController
 
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request, $item)
+            $this->rules($request, $item->person_id)
         );
 
         try {
@@ -71,11 +71,11 @@ class ProfileController extends BaseController
         }
     }
 
-    private function rules(Request $request, $item = null, bool $changeMessages = false)
+    private function rules(Request $request, $primaryId = null, bool $changeMessages = false)
     {
         $rules = [
             'name' => ['required', 'string', 'max:60'],
-            'email' => ['required', 'string', 'max:100', Rule::unique('users')->ignore($item->id ?? null)]
+            'email' => ['required', 'string', 'max:100', new modelPersonRelationship(User::class, $primaryId)]
         ];
 
         $messages = [];

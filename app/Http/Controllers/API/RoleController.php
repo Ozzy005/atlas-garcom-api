@@ -116,7 +116,7 @@ class RoleController extends BaseController
 
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request, $item)
+            $this->rules($request, $item->id)
         );
 
         try {
@@ -195,10 +195,10 @@ class RoleController extends BaseController
         }
     }
 
-    private function rules(Request $request, $item = null, bool $changeMessages = false)
+    private function rules(Request $request, $primaryId = null, bool $changeMessages = false)
     {
         $rules = [
-            'name' => ['required', 'string', 'max:125', Rule::unique('roles')->ignore($item->id ?? null)],
+            'name' => ['required', 'string', 'max:125', Rule::unique('roles')->ignore($primaryId)],
             'description' => ['required', 'string', 'max:125'],
             'permission_ids' => ['array', Rule::requiredIf(fn () => $request->isMethod('post'))],
             'permission_ids.*' => [Rule::requiredIf(fn () => $request->isMethod('post')), Rule::exists('permissions', 'id')],

@@ -124,7 +124,7 @@ class PermissionController extends BaseController
         }
     }
 
-    private function rules(Request $request, $item = null, bool $changeMessages = false)
+    private function rules(Request $request, $primaryId = null, bool $changeMessages = false)
     {
         $rules = [
             'description' => ['required', 'string', 'max:125']

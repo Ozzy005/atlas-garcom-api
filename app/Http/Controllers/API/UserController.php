@@ -6,6 +6,7 @@ use App\Exceptions\HttpException;
 use App\Http\Requests\PersonRequest;
 use App\Models\Person;
 use App\Models\User;
+use App\Rules\modelPersonRelationship;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -77,7 +78,8 @@ class UserController extends BaseController
 
             $inputs = $request->all();
 
-            $person = Person::query()->create($inputs);
+            $person = Person::query()
+                ->updateOrCreate(['nif' => $inputs['nif']], $inputs);
 
             $inputs['person_id'] = $person->id;
             $inputs['name'] = $person->full_name;
@@ -133,7 +135,7 @@ class UserController extends BaseController
 
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request, $item)
+            $this->rules($request, $item->person_id)
         );
 
         try {
@@ -211,12 +213,12 @@ class UserController extends BaseController
         }
     }
 
-    private function rules(Request $request, $item = null, bool $changeMessages = false)
+    private function rules(Request $request, $primaryId = null, bool $changeMessages = false)
     {
         $rules = [
-            'nif' => [Rule::unique('people')->ignore($item->person_id ?? null)],
+            'nif' => [new modelPersonRelationship(User::class, $primaryId)],
             'status' => ['required', 'integer', new Enum(\App\Enums\Status::class)],
-            'email' => [Rule::unique('people')->ignore($item->person_id ?? null)],
+            'email' => [new modelPersonRelationship(User::class, $primaryId)],
             'password' => ['confirmed', Rule::requiredIf(fn () => $request->isMethod('post')), Rules\Password::defaults()],
             'roles' => ['required', 'array'],
             'roles.*' => ['required', Rule::exists('roles', 'id')]
