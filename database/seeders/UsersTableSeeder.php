@@ -42,7 +42,7 @@ class UsersTableSeeder extends Seeder
                 [
                     'name' => 'Atlas Garçom',
                     'email' => 'admin@atlasgarcom.com',
-                    'password' => Hash::make('1234567o'),
+                    'password' => Hash::make('atlas1234567o'),
                 ]
             );
 
