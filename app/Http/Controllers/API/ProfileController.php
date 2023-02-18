@@ -19,9 +19,7 @@ class ProfileController extends BaseController
      */
     public function show(): JsonResponse
     {
-        $item = User::query()
-            ->with('person.city.state')
-            ->findOrFail(auth()->id());
+        $item = User::query()->findOrFail(auth()->id());
 
         return $this->sendResponse($item);
     }

@@ -2,24 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class City extends Model
 {
     use HasFactory;
-
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array
-     */
-    protected $appends = [
-        'info',
-        'state_name'
-    ];
 
     /**
      * Get the state that owns the City
@@ -32,26 +22,19 @@ class City extends Model
     }
 
     /**
-     * Get the state and city as a concatenated attribute.
+     * Scope a query to include state information.
      *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function info(): Attribute
+    public function scopeStateQuery($query)
     {
-        return new Attribute(
-            get: fn () => $this->title . ' - ' . $this->state->letter
-        );
-    }
-
-    /**
-     * Get the state name.
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
-     */
-    public function stateName(): Attribute
-    {
-        return new Attribute(
-            get: fn () => $this->state->title
-        );
+        return $query->select(
+            'cities.*',
+            DB::raw("concat(cities.title, ' - ', states.letter) as info"),
+            'states.title as state',
+            'states.letter'
+        )
+            ->join('states', 'states.id', '=', 'cities.state_id');
     }
 }
