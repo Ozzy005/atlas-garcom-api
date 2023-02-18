@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 class TenantController extends BaseController
@@ -33,20 +32,16 @@ class TenantController extends BaseController
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Tenant::query()
-            ->with('person.city.state')
+        $query = Tenant::personQuery()
             ->when($request->filled('search'), function ($query) use ($request) {
-                $query->whereHas('person', function ($query) use ($request) {
-                    $query->whereRaw('(replace(replace(replace(nif, ".", ""), "/", ""), "-", "") like "%' . removeMask($request->search) . '%")')
-                        ->orWhere('full_name', 'like', '%' . $request->search . '%')
-                        ->orWhere('name', 'like', '%' . $request->search . '%')
-                        ->orWhere('email', 'like', '%' . $request->search . '%');
-                });
+                $query->where('full_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('nif', 'like', '%' . removeMask($request->search) . '%')
+                    ->orWhere('people.email', 'like', '%' . $request->search . '%');
             })
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
                 fn ($query) => $query->orderBy(
-                    $request->sortBy,
+                    in_array($request->sortBy, ['email']) ? "people.$request->sortBy" : $request->sortBy,
                     filter_var($request->descending, FILTER_VALIDATE_BOOLEAN) ? 'desc' : 'asc'
                 )
             );
@@ -114,8 +109,7 @@ class TenantController extends BaseController
      */
     public function show($id): JsonResponse
     {
-        $item = Tenant::query()
-            ->with('person.city.state')
+        $item = Tenant::personQuery()
             ->findOrFail($id);
 
         return $this->sendResponse($item);

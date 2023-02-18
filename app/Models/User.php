@@ -5,8 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Enums\Status;
-use App\Traits\PersonAccessors;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Traits\ScopePersonQuery;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -16,7 +15,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, PersonAccessors;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, ScopePersonQuery;
 
     /**
      * The attributes that are mass assignable.
@@ -50,27 +49,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'status' => Status::class
     ];
-
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array
-     */
-    protected $appends = [
-        'status_name'
-    ];
-
-    /**
-     * Get the status name.
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
-     */
-    public function statusName(): Attribute
-    {
-        return new Attribute(
-            get: fn () => $this->status->name()
-        );
-    }
 
     /**
      * Get the person that owns the User

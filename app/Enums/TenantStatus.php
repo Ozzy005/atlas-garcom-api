@@ -2,8 +2,12 @@
 
 namespace App\Enums;
 
+use App\Traits\EnumMethods;
+
 enum TenantStatus: int
 {
+    use EnumMethods;
+
     case ACTIVE = 1;
     case DEFAULTER = 2;
     case SUSPENDED = 3;

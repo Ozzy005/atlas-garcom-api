@@ -3,15 +3,14 @@
 namespace App\Models;
 
 use App\Enums\TenantStatus;
-use App\Traits\PersonAccessors;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Traits\ScopePersonQuery;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Tenant extends Model
 {
-    use HasFactory, PersonAccessors;
+    use HasFactory, ScopePersonQuery;
 
     /**
      * The attributes that are mass assignable.
@@ -31,27 +30,6 @@ class Tenant extends Model
     protected $casts = [
         'status' => TenantStatus::class
     ];
-
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array
-     */
-    protected $appends = [
-        'status_name'
-    ];
-
-    /**
-     * Get the status name.
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
-     */
-    public function statusName(): Attribute
-    {
-        return new Attribute(
-            get: fn () => $this->status->name()
-        );
-    }
 
     /**
      * Get the person that owns the Tenant

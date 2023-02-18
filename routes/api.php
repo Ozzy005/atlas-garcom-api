@@ -20,6 +20,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('user-permissions', [App\Http\Controllers\API\PermissionController::class, 'userPermissions']);
     Route::put('change-password', App\Http\Controllers\API\ChangePasswordController::class);
 
+    Route::get('status', [App\Http\Controllers\API\StatusController::class, 'status']);
+    Route::get('tenant-status', [App\Http\Controllers\API\StatusController::class, 'tenantStatus']);
+
     Route::apiResource('tenants', App\Http\Controllers\API\TenantController::class);
     Route::apiResource('states', App\Http\Controllers\API\StateController::class)->only(['index', 'show']);
     Route::apiResource('cities', App\Http\Controllers\API\CityController::class)->only(['index', 'show']);

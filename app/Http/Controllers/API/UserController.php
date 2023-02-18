@@ -33,20 +33,16 @@ class UserController extends BaseController
      */
     public function index(Request $request): JsonResponse
     {
-        $query = User::query()
-            ->with('person.city.state')
+        $query = User::personQuery()
             ->when($request->filled('search'), function ($query) use ($request) {
-                $query->whereHas('person', function ($query) use ($request) {
-                    $query->whereRaw('(replace(replace(replace(nif, ".", ""), "/", ""), "-", "") like "%' . removeMask($request->search) . '%")')
-                        ->orWhere('full_name', 'like', '%' . $request->search . '%')
-                        ->orWhere('name', 'like', '%' . $request->search . '%')
-                        ->orWhere('email', 'like', '%' . $request->search . '%');
-                });
+                $query->where('full_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('nif', 'like', '%' . removeMask($request->search) . '%')
+                    ->orWhere('people.email', 'like', '%' . $request->search . '%');
             })
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
                 fn ($query) => $query->orderBy(
-                    $request->sortBy,
+                    in_array($request->sortBy, ['email']) ? "people.$request->sortBy" : $request->sortBy,
                     filter_var($request->descending, FILTER_VALIDATE_BOOLEAN) ? 'desc' : 'asc'
                 )
             );
@@ -113,8 +109,8 @@ class UserController extends BaseController
      */
     public function show($id): JsonResponse
     {
-        $item = User::query()
-            ->with('person.city.state', 'roles')
+        $item = User::personQuery()
+            ->with('roles')
             ->findOrFail($id);
 
         return $this->sendResponse($item);
