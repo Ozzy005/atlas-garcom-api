@@ -17,8 +17,8 @@ if (!function_exists('carbon')) {
     }
 }
 
-if (!function_exists('ukDate')) {
-    function ukDate($datetime = null, $timestamp = false)
+if (!function_exists('usDate')) {
+    function usDate($datetime = null, $timestamp = false)
     {
         $datetime = $datetime ? $datetime : Carbon::now();
         $format = $timestamp ? 'd/m/Y H:i' : 'd/m/Y';

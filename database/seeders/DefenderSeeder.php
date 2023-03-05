@@ -68,6 +68,8 @@ class DefenderSeeder extends Seeder
         $permissions = Permission::query()
             ->where([
                 ['name', 'not like', '%tenants_%'],
+                ['name', 'not like', '%measurement_units_%'],
+                ['name', 'not like', '%ncms_%'],
                 ['name', 'not like', '%cities_%'],
                 ['name', 'not like', '%states_%'],
                 ['name', 'not like', '%permissions_%']

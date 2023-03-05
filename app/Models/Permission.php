@@ -29,7 +29,7 @@ class Permission extends \Spatie\Permission\Models\Permission
                                 array('name' => 'tenants_view', 'description' => 'Visualizar'),
                                 array('name' => 'tenants_create', 'description' => 'Criar'),
                                 array('name' => 'tenants_edit', 'description' => 'Editar'),
-                                array('name' => 'tenants_delete', 'description' => 'Deletar'),
+                                array('name' => 'tenants_delete', 'description' => 'Deletar')
                             ]
                         ]
                     ]
@@ -38,6 +38,23 @@ class Permission extends \Spatie\Permission\Models\Permission
                     'name' => 'general_view',
                     'description' => 'Geral',
                     'children' => [
+                        [
+                            'name' => 'measurement-units_group_view',
+                            'description' => 'Unidades de Medida',
+                            'children' => [
+                                array('name' => 'measurement-units_view', 'description' => 'Visualizar'),
+                                array('name' => 'measurement-units_create', 'description' => 'Criar'),
+                                array('name' => 'measurement-units_edit', 'description' => 'Editar'),
+                                array('name' => 'measurement-units_delete', 'description' => 'Deletar')
+                            ]
+                        ],
+                        [
+                            'name' => 'ncms_group_view',
+                            'description' => 'NCMS',
+                            'children' => [
+                                array('name' => 'ncms_view', 'description' => 'Visualizar')
+                            ]
+                        ],
                         [
                             'name' => 'states_group_view',
                             'description' => 'Estados',
@@ -67,7 +84,7 @@ class Permission extends \Spatie\Permission\Models\Permission
                         array('name' => 'users_view', 'description' => 'Visualizar'),
                         array('name' => 'users_create', 'description' => 'Criar'),
                         array('name' => 'users_edit', 'description' => 'Editar'),
-                        array('name' => 'users_delete', 'description' => 'Deletar'),
+                        array('name' => 'users_delete', 'description' => 'Deletar')
                     ]
                 ],
                 [
@@ -77,7 +94,7 @@ class Permission extends \Spatie\Permission\Models\Permission
                         array('name' => 'roles_view', 'description' => 'Visualizar'),
                         array('name' => 'roles_create', 'description' => 'Criar'),
                         array('name' => 'roles_edit', 'description' => 'Editar'),
-                        array('name' => 'roles_delete', 'description' => 'Deletar'),
+                        array('name' => 'roles_delete', 'description' => 'Deletar')
                     ]
                 ],
                 [
