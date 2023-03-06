@@ -39,6 +39,16 @@ class Permission extends \Spatie\Permission\Models\Permission
                     'description' => 'Geral',
                     'children' => [
                         [
+                            'name' => 'payment-methods_group_view',
+                            'description' => 'Métodos de Pagamento',
+                            'children' => [
+                                array('name' => 'payment-methods_view', 'description' => 'Visualizar'),
+                                array('name' => 'payment-methods_create', 'description' => 'Criar'),
+                                array('name' => 'payment-methods_edit', 'description' => 'Editar'),
+                                array('name' => 'payment-methods_delete', 'description' => 'Deletar')
+                            ]
+                        ],
+                        [
                             'name' => 'measurement-units_group_view',
                             'description' => 'Unidades de Medida',
                             'children' => [

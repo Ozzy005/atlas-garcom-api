@@ -3,21 +3,21 @@
 namespace App\Http\Controllers\API;
 
 use App\Exceptions\HttpException;
-use App\Models\MeasurementUnit;
+use App\Models\PaymentMethod;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Enum;
 
-class MeasurementUnitController extends BaseController
+class PaymentMethodController extends BaseController
 {
     public function __construct()
     {
-        $this->middleware('permission:measurement-units_create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:measurement-units_edit', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:measurement-units_view', ['only' => ['show', 'index']]);
-        $this->middleware('permission:measurement-units_delete', ['only' => ['destroy']]);
+        $this->middleware('permission:payment-methods_create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:payment-methods_edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:payment-methods_view', ['only' => ['show', 'index']]);
+        $this->middleware('permission:payment-methods_delete', ['only' => ['destroy']]);
     }
 
     /**
@@ -27,10 +27,10 @@ class MeasurementUnitController extends BaseController
      */
     public function index(Request $request): JsonResponse
     {
-        $query = MeasurementUnit::query()
+        $query = PaymentMethod::query()
             ->when($request->filled('search'), function ($query) use ($request) {
-                $query->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('initials', 'like', '%' . removeMask($request->search) . '%');
+                $query->where('code', 'like', '%' . $request->search . '%')
+                    ->orWhere('name', 'like', '%' . removeMask($request->search) . '%');
             })
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
@@ -66,7 +66,7 @@ class MeasurementUnitController extends BaseController
             DB::beginTransaction();
 
             $inputs = $request->all();
-            MeasurementUnit::query()->create($inputs);
+            PaymentMethod::query()->create($inputs);
 
             DB::commit();
             return $this->sendResponse([], 'Registro criado com sucesso!', 201);
@@ -93,7 +93,7 @@ class MeasurementUnitController extends BaseController
      */
     public function show($id): JsonResponse
     {
-        $item = MeasurementUnit::query()
+        $item = PaymentMethod::query()
             ->findOrFail($id);
 
         return $this->sendResponse($item);
@@ -108,7 +108,7 @@ class MeasurementUnitController extends BaseController
      */
     public function update(Request $request, $id): JsonResponse
     {
-        $item = MeasurementUnit::query()
+        $item = PaymentMethod::query()
             ->findOrFail($id);
 
         $validator = Validator::make(
@@ -151,7 +151,7 @@ class MeasurementUnitController extends BaseController
      */
     public function destroy($id): JsonResponse
     {
-        $item = MeasurementUnit::query()
+        $item = PaymentMethod::query()
             ->findOrFail($id);
 
         try {
@@ -179,8 +179,8 @@ class MeasurementUnitController extends BaseController
     private function rules(Request $request, $primaryId = null, bool $changeMessages = false)
     {
         $rules = [
+            'code' => ['required', 'string', 'max:10'],
             'name' => ['required', 'string', 'max:30'],
-            'initials' => ['required', 'string', 'max:10'],
             'status' => ['required', 'integer', new Enum(\App\Enums\Status::class)]
         ];
 
