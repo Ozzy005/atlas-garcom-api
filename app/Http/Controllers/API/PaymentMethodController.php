@@ -4,10 +4,12 @@ namespace App\Http\Controllers\API;
 
 use App\Exceptions\HttpException;
 use App\Models\PaymentMethod;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 class PaymentMethodController extends BaseController
@@ -144,25 +146,43 @@ class PaymentMethodController extends BaseController
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove all specified resources from storage.
      *
-     * @param  int $id
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id): JsonResponse
+    public function destroy(Request $request): JsonResponse
     {
-        $item = PaymentMethod::query()
-            ->findOrFail($id);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'items' => ['required', 'array', 'min:1'],
+                'items.*' => ['required', 'integer', Rule::exists('payment_methods', 'id')]
+            ]
+        );
 
         try {
+            if ($validator->fails()) {
+                throw new HttpException('Erro de validação!', $validator->errors()->toArray(), 422);
+            }
+
             DB::beginTransaction();
 
-            $item->delete();
+            $items = PaymentMethod::query()
+                ->whereIn('id', $request->items)
+                ->get();
+
+            $model = null;
+            foreach ($items as $item) {
+                $model = $item;
+                $item->delete();
+            }
 
             DB::commit();
-            return $this->sendResponse([], 'Registro deletado com sucesso!');
+            return $this->sendResponse([], 'Registros deletados com sucesso!');
         } catch (\Throwable $th) {
-            $msg = 'Este registro está vinculado a outra tabela. Por favor, remova o vínculo antes de excluir!';
+            $model = $model->id ?? null;
+            $msg = "O registro $model está vinculado a outra tabela. Por favor, remova o vínculo antes de excluir!";
             $code = 500;
             $errors = [];
 

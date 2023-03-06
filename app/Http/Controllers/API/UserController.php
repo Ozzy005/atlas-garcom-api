@@ -171,31 +171,49 @@ class UserController extends BaseController
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove all specified resources from storage.
      *
-     * @param  int $id
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id): JsonResponse
+    public function destroy(Request $request): JsonResponse
     {
-        $item = User::query()->findOrFail($id);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'items' => ['required', 'array', 'min:1'],
+                'items.*' => ['required', 'integer', Rule::exists('users', 'id')]
+            ]
+        );
 
         try {
-            if ($item->id == auth()->id()) {
+            if ($validator->fails()) {
+                throw new HttpException('Erro de validação!', $validator->errors()->toArray(), 422);
+            }
+            if (in_array(auth()->id(), $request->items)) {
                 throw new HttpException('Não é possível excluir seu próprio usuário!', [], 403);
             }
-            if ($item->id == 1) {
+            if (in_array(1, $request->items)) {
                 throw new HttpException('Não é possível excluir o usuário do administrador!', [], 403);
             }
 
             DB::beginTransaction();
 
-            $item->delete();
+            $items = User::query()
+                ->whereIn('id', $request->items)
+                ->get();
+
+            $model = null;
+            foreach ($items as $item) {
+                $model = $item;
+                $item->delete();
+            }
 
             DB::commit();
-            return $this->sendResponse([], 'Registro deletado com sucesso!');
+            return $this->sendResponse([], 'Registros deletados com sucesso!');
         } catch (\Throwable $th) {
-            $msg = 'Este registro está vinculado a outra tabela. Por favor, remova o vínculo antes de excluir!';
+            $model = $model->id ?? null;
+            $msg = "O registro $model está vinculado a outra tabela. Por favor, remova o vínculo antes de excluir!";
             $code = 500;
             $errors = [];
 
