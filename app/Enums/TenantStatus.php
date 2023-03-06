@@ -22,4 +22,14 @@ enum TenantStatus: int
             static::CANCELED => 'Cancelado'
         };
     }
+
+    public function color(): string
+    {
+        return match ($this) {
+            static::ACTIVE => '#21BA45',
+            static::DEFAULTER => '#808080',
+            static::SUSPENDED => '#800080',
+            static::CANCELED => '#C10015',
+        };
+    }
 }

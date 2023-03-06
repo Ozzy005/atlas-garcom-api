@@ -18,4 +18,12 @@ enum Status: int
             static::INACTIVE => 'Inativo',
         };
     }
+
+    public function color(): string
+    {
+        return match ($this) {
+            static::ACTIVE => '#21BA45',
+            static::INACTIVE => '#C10015',
+        };
+    }
 }
