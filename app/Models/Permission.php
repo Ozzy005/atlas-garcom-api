@@ -35,6 +35,32 @@ class Permission extends \Spatie\Permission\Models\Permission
                     ]
                 ],
                 [
+                    'name' => 'operational_view',
+                    'description' => 'Operacional',
+                    'children' => [
+                        [
+                            'name' => 'signatures_group_view',
+                            'description' => 'Assinaturas',
+                            'children' => [
+                                array('name' => 'signatures_view', 'description' => 'Visualizar'),
+                                array('name' => 'signatures_create', 'description' => 'Criar'),
+                                array('name' => 'signatures_edit', 'description' => 'Editar'),
+                                array('name' => 'signatures_delete', 'description' => 'Deletar')
+                            ]
+                        ],
+                        [
+                            'name' => 'due_days_group_view',
+                            'description' => 'Dias de Vencimento',
+                            'children' => [
+                                array('name' => 'due-days_view', 'description' => 'Visualizar'),
+                                array('name' => 'due-days_create', 'description' => 'Criar'),
+                                array('name' => 'due-days_edit', 'description' => 'Editar'),
+                                array('name' => 'due-days_delete', 'description' => 'Deletar')
+                            ]
+                        ]
+                    ]
+                ],
+                [
                     'name' => 'general_view',
                     'description' => 'Geral',
                     'children' => [
@@ -99,7 +125,7 @@ class Permission extends \Spatie\Permission\Models\Permission
                 ],
                 [
                     'name' => 'roles_group_view',
-                    'description' => 'Atribuições',
+                    'description' => 'Atribuições/Módulos',
                     'children' => [
                         array('name' => 'roles_view', 'description' => 'Visualizar'),
                         array('name' => 'roles_create', 'description' => 'Criar'),

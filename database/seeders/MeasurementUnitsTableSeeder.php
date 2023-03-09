@@ -88,6 +88,8 @@ class MeasurementUnitsTableSeeder extends Seeder
                     ['id' => $value['id']],
                     $value
                 );
+
+            $this->command->info("  {$value['id']} - Unidade de Medida {$value['name']} criada.");
         }
     }
 }

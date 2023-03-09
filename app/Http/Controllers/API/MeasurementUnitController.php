@@ -31,7 +31,7 @@ class MeasurementUnitController extends BaseController
         $query = MeasurementUnit::query()
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('initials', 'like', '%' . removeMask($request->search) . '%');
+                    ->orWhere('initials', 'like', '%' . $request->search . '%');
             })
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),

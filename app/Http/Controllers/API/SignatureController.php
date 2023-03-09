@@ -3,27 +3,22 @@
 namespace App\Http\Controllers\API;
 
 use App\Exceptions\HttpException;
-use App\Http\Requests\PersonRequest;
-use App\Models\Person;
-use App\Models\Tenant;
-use App\Models\User;
-use App\Rules\modelPersonRelationship;
+use App\Models\Signature;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
-class TenantController extends BaseController
+class SignatureController extends BaseController
 {
     public function __construct()
     {
-        $this->middleware('permission:tenants_create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:tenants_edit', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:tenants_view', ['only' => ['show', 'index']]);
-        $this->middleware('permission:tenants_delete', ['only' => ['destroy']]);
+        $this->middleware('permission:signatures_create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:signatures_edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:signatures_view', ['only' => ['show', 'index']]);
+        $this->middleware('permission:signatures_delete', ['only' => ['destroy']]);
     }
 
     /**
@@ -33,16 +28,15 @@ class TenantController extends BaseController
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Tenant::personQuery()
+        $query = Signature::query()
             ->when($request->filled('search'), function ($query) use ($request) {
-                $query->where('full_name', 'like', '%' . $request->search . '%')
-                    ->orWhere('nif', 'like', '%' . removeMask($request->search) . '%')
-                    ->orWhere('people.email', 'like', '%' . $request->search . '%');
+                $query->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('description', 'like', '%' . $request->search . '%');
             })
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
                 fn ($query) => $query->orderBy(
-                    in_array($request->sortBy, ['email']) ? "people.$request->sortBy" : $request->sortBy,
+                    $request->sortBy,
                     filter_var($request->descending, FILTER_VALIDATE_BOOLEAN) ? 'desc' : 'asc'
                 )
             );
@@ -58,7 +52,7 @@ class TenantController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(PersonRequest $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $validator = Validator::make(
             $request->all(),
@@ -73,22 +67,19 @@ class TenantController extends BaseController
             DB::beginTransaction();
 
             $inputs = $request->all();
-
-            $person = Person::query()
-                ->updateOrCreate(['nif' => $inputs['nif']], $inputs);
-
-            $inputs['person_id'] = $person->id;
-            Tenant::query()->create($inputs);
-
-            $inputs['name'] = $person->full_name;
-            $inputs['password'] = Hash::make($inputs['nif']);
-            $user = User::query()->create($inputs);
-            $user->assignRole('tenant');
+            $inputs['price'] = moneyToFloat($inputs['price']);
+            $inputs['discount'] = moneyToFloat($inputs['discount']);
+            $inputs['discounted_price'] = moneyToFloat($inputs['discounted_price']);
+            $inputs['total_price'] = moneyToFloat($inputs['total_price']);
+            $item = Signature::query()->create($inputs);
+            $item->dueDays()->sync($inputs['due_days']);
+            $item->modules()->sync($inputs['modules']);
 
             DB::commit();
             return $this->sendResponse([], 'Registro criado com sucesso!', 201);
         } catch (\Throwable $th) {
             $msg = 'Erro interno do servidor!';
+            $msg = $th->getMessage();
             $code = 500;
             $errors = [];
 
@@ -110,7 +101,8 @@ class TenantController extends BaseController
      */
     public function show($id): JsonResponse
     {
-        $item = Tenant::personQuery()
+        $item = Signature::query()
+            ->with('dueDays', 'modules')
             ->findOrFail($id);
 
         return $this->sendResponse($item);
@@ -123,15 +115,14 @@ class TenantController extends BaseController
      * @param  int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(PersonRequest $request, $id): JsonResponse
+    public function update(Request $request, $id): JsonResponse
     {
-        $item = Tenant::query()
-            ->with('person')
+        $item = Signature::query()
             ->findOrFail($id);
 
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request, $item->person_id)
+            $this->rules($request, $item->id)
         );
 
         try {
@@ -142,8 +133,13 @@ class TenantController extends BaseController
             DB::beginTransaction();
 
             $inputs = $request->all();
-            $item->person->fill($inputs)->save();
+            $inputs['price'] = moneyToFloat($inputs['price']);
+            $inputs['discount'] = moneyToFloat($inputs['discount']);
+            $inputs['discounted_price'] = moneyToFloat($inputs['discounted_price']);
+            $inputs['total_price'] = moneyToFloat($inputs['total_price']);
             $item->fill($inputs)->save();
+            $item->dueDays()->sync($inputs['due_days']);
+            $item->modules()->sync($inputs['modules']);
 
             DB::commit();
             return $this->sendResponse([], 'Registro editado com sucesso!');
@@ -174,7 +170,7 @@ class TenantController extends BaseController
             $request->all(),
             [
                 'items' => ['required', 'array', 'min:1'],
-                'items.*' => ['required', 'integer', Rule::exists('tenants', 'id')]
+                'items.*' => ['required', 'integer', Rule::exists('signatures', 'id')]
             ]
         );
 
@@ -185,15 +181,15 @@ class TenantController extends BaseController
 
             DB::beginTransaction();
 
-            $items = Tenant::query()
-                ->with('person.user')
+            $items = Signature::query()
                 ->whereIn('id', $request->items)
                 ->get();
 
             $model = null;
             foreach ($items as $item) {
                 $model = $item;
-                $item->person->user->delete();
+                $item->dueDays()->detach();
+                $item->modules()->detach();
                 $item->delete();
             }
 
@@ -218,11 +214,19 @@ class TenantController extends BaseController
     private function rules(Request $request, $primaryId = null, bool $changeMessages = false)
     {
         $rules = [
-            'nif' => [new modelPersonRelationship(Tenant::class, $primaryId)],
-            'email' => [new modelPersonRelationship(Tenant::class, $primaryId)],
-            'signature_id' => ['required', 'integer', Rule::exists('signatures', 'id')],
-            'due_day_id' => ['required', 'integer', Rule::exists('due_day_id', 'id')],
-            'status' => ['required', 'integer', new Enum(\App\Enums\TenantStatus::class)]
+            'name' => ['required', 'string', 'max:30'],
+            'description' => ['required', 'string', 'max:100'],
+            'recurrence' => ['required', 'integer', new Enum(\App\Enums\Recurrence::class)],
+            'price' => ['required', 'string', 'max:12'],
+            'hasDiscount' => ['required', 'boolean'],
+            'discount' => ['nullable', 'string', 'max:5'],
+            'discounted_price' => ['nullable', 'string', 'max:12'],
+            'total_price' => ['required', 'string', 'max:12'],
+            'due_days' => ['required', 'array'],
+            'due_days.*' => ['required', 'integer', Rule::exists('due_days', 'id')],
+            'modules' => ['required', 'array'],
+            'modules.*' => ['required', 'integer', Rule::exists('roles', 'id')],
+            'status' => ['required', 'integer', new Enum(\App\Enums\Status::class)]
         ];
 
         $messages = [];

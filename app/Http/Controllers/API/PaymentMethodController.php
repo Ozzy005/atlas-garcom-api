@@ -32,7 +32,7 @@ class PaymentMethodController extends BaseController
         $query = PaymentMethod::query()
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where('code', 'like', '%' . $request->search . '%')
-                    ->orWhere('name', 'like', '%' . removeMask($request->search) . '%');
+                    ->orWhere('name', 'like', '%' . $request->search . '%');
             })
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),

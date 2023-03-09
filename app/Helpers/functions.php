@@ -37,14 +37,14 @@ if (!function_exists('brDate')) {
 }
 
 if (!function_exists('floatToMoney')) {
-    function floatToMoney(float $value)
+    function floatToMoney($value)
     {
         return number_format($value, 2, ',', '.');
     }
 }
 
 if (!function_exists('moneyToFloat')) {
-    function moneyToFloat(string $value)
+    function moneyToFloat($value)
     {
         if (!$value) return 0;
 
@@ -66,7 +66,7 @@ if (!function_exists('removeMask')) {
 }
 
 if (!function_exists('insertMask')) {
-    function insertMask(string $str, string $mask)
+    function insertMask($str, $mask)
     {
         $str = str_replace(" ", "", $str);
 
@@ -79,7 +79,7 @@ if (!function_exists('insertMask')) {
 }
 
 if (!function_exists('nifMask')) {
-    function nifMask(string $str)
+    function nifMask($str)
     {
         if (strlen($str) == 11) {
             $mask = '###.###.###-##';
@@ -98,7 +98,7 @@ if (!function_exists('nifMask')) {
 }
 
 if (!function_exists('phoneMask')) {
-    function phoneMask(string $str)
+    function phoneMask($str)
     {
         $mask = '(##) #####-####';
 
@@ -113,7 +113,7 @@ if (!function_exists('phoneMask')) {
 }
 
 if (!function_exists('zipCodeMask')) {
-    function zipCodeMask(string $str)
+    function zipCodeMask($str)
     {
         $mask = '#####-###';
 

@@ -43,6 +43,8 @@ class PaymentMethodsTableSeeder extends Seeder
                     ['id' => $value['id']],
                     $value
                 );
+
+            $this->command->info("  {$value['id']} - Método de Pagamento {$value['name']} criado.");
         }
     }
 }

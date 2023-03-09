@@ -3,27 +3,22 @@
 namespace App\Http\Controllers\API;
 
 use App\Exceptions\HttpException;
-use App\Http\Requests\PersonRequest;
-use App\Models\Person;
-use App\Models\Tenant;
-use App\Models\User;
-use App\Rules\modelPersonRelationship;
+use App\Models\DueDay;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
-class TenantController extends BaseController
+class DueDayController extends BaseController
 {
     public function __construct()
     {
-        $this->middleware('permission:tenants_create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:tenants_edit', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:tenants_view', ['only' => ['show', 'index']]);
-        $this->middleware('permission:tenants_delete', ['only' => ['destroy']]);
+        $this->middleware('permission:due-days_create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:due-days_edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:due-days_view', ['only' => ['show', 'index']]);
+        $this->middleware('permission:due-days_delete', ['only' => ['destroy']]);
     }
 
     /**
@@ -33,16 +28,16 @@ class TenantController extends BaseController
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Tenant::personQuery()
+        $query = DueDay::query()
             ->when($request->filled('search'), function ($query) use ($request) {
-                $query->where('full_name', 'like', '%' . $request->search . '%')
-                    ->orWhere('nif', 'like', '%' . removeMask($request->search) . '%')
-                    ->orWhere('people.email', 'like', '%' . $request->search . '%');
+                $query->where('day', 'like', '%' . $request->search . '%')
+                    ->orWhere('description', 'like', '%' . $request->search . '%');
             })
+            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->status))
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
                 fn ($query) => $query->orderBy(
-                    in_array($request->sortBy, ['email']) ? "people.$request->sortBy" : $request->sortBy,
+                    $request->sortBy,
                     filter_var($request->descending, FILTER_VALIDATE_BOOLEAN) ? 'desc' : 'asc'
                 )
             );
@@ -58,7 +53,7 @@ class TenantController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(PersonRequest $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $validator = Validator::make(
             $request->all(),
@@ -73,17 +68,7 @@ class TenantController extends BaseController
             DB::beginTransaction();
 
             $inputs = $request->all();
-
-            $person = Person::query()
-                ->updateOrCreate(['nif' => $inputs['nif']], $inputs);
-
-            $inputs['person_id'] = $person->id;
-            Tenant::query()->create($inputs);
-
-            $inputs['name'] = $person->full_name;
-            $inputs['password'] = Hash::make($inputs['nif']);
-            $user = User::query()->create($inputs);
-            $user->assignRole('tenant');
+            DueDay::query()->create($inputs);
 
             DB::commit();
             return $this->sendResponse([], 'Registro criado com sucesso!', 201);
@@ -110,7 +95,7 @@ class TenantController extends BaseController
      */
     public function show($id): JsonResponse
     {
-        $item = Tenant::personQuery()
+        $item = DueDay::query()
             ->findOrFail($id);
 
         return $this->sendResponse($item);
@@ -123,15 +108,14 @@ class TenantController extends BaseController
      * @param  int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(PersonRequest $request, $id): JsonResponse
+    public function update(Request $request, $id): JsonResponse
     {
-        $item = Tenant::query()
-            ->with('person')
+        $item = DueDay::query()
             ->findOrFail($id);
 
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request, $item->person_id)
+            $this->rules($request, $item->id)
         );
 
         try {
@@ -142,7 +126,6 @@ class TenantController extends BaseController
             DB::beginTransaction();
 
             $inputs = $request->all();
-            $item->person->fill($inputs)->save();
             $item->fill($inputs)->save();
 
             DB::commit();
@@ -174,7 +157,7 @@ class TenantController extends BaseController
             $request->all(),
             [
                 'items' => ['required', 'array', 'min:1'],
-                'items.*' => ['required', 'integer', Rule::exists('tenants', 'id')]
+                'items.*' => ['required', 'integer', Rule::exists('due_days', 'id')]
             ]
         );
 
@@ -185,15 +168,13 @@ class TenantController extends BaseController
 
             DB::beginTransaction();
 
-            $items = Tenant::query()
-                ->with('person.user')
+            $items = DueDay::query()
                 ->whereIn('id', $request->items)
                 ->get();
 
             $model = null;
             foreach ($items as $item) {
                 $model = $item;
-                $item->person->user->delete();
                 $item->delete();
             }
 
@@ -218,11 +199,9 @@ class TenantController extends BaseController
     private function rules(Request $request, $primaryId = null, bool $changeMessages = false)
     {
         $rules = [
-            'nif' => [new modelPersonRelationship(Tenant::class, $primaryId)],
-            'email' => [new modelPersonRelationship(Tenant::class, $primaryId)],
-            'signature_id' => ['required', 'integer', Rule::exists('signatures', 'id')],
-            'due_day_id' => ['required', 'integer', Rule::exists('due_day_id', 'id')],
-            'status' => ['required', 'integer', new Enum(\App\Enums\TenantStatus::class)]
+            'day' => ['required', 'integer', 'min:1', 'max:31'],
+            'description' => ['nullable', 'string', 'max:50'],
+            'status' => ['required', 'integer', new Enum(\App\Enums\Status::class)]
         ];
 
         $messages = [];

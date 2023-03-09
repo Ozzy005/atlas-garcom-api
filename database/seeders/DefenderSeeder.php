@@ -58,25 +58,5 @@ class DefenderSeeder extends Seeder
             );
 
         $admin->permissions()->sync(Permission::query()->get()->toFlatTree());
-
-        $tenant = Role::query()
-            ->updateOrCreate(
-                ['name' => 'tenant'],
-                ['description' => 'Contratante']
-            );
-
-        $permissions = Permission::query()
-            ->where([
-                ['name', 'not like', '%tenants_%'],
-                ['name', 'not like', '%payment-methods_%'],
-                ['name', 'not like', '%measurement-units_%'],
-                ['name', 'not like', '%ncms_%'],
-                ['name', 'not like', '%cities_%'],
-                ['name', 'not like', '%states_%'],
-                ['name', 'not like', '%permissions_%']
-            ])
-            ->get();
-
-        $tenant->permissions()->sync($permissions);
     }
 }

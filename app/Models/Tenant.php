@@ -19,6 +19,8 @@ class Tenant extends Model
      */
     protected $fillable = [
         'person_id',
+        'signature_id',
+        'due_day_id',
         'status'
     ];
 
@@ -39,5 +41,25 @@ class Tenant extends Model
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
+    }
+
+    /**
+     * Get the signature that owns the Tenant
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function signature(): BelongsTo
+    {
+        return $this->belongsTo(Signature::class);
+    }
+
+    /**
+     * Get the dueDay that owns the Tenant
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function dueDay(): BelongsTo
+    {
+        return $this->belongsTo(DueDay::class);
     }
 }

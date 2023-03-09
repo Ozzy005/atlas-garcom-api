@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\RoleType;
 use App\Exceptions\HttpException;
 use App\Models\Role;
 use Illuminate\Http\JsonResponse;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 
 class RoleController extends BaseController
 {
@@ -32,6 +34,7 @@ class RoleController extends BaseController
                 $query->where('name', 'like', '%' . $request->search . '%')
                     ->orWhere('description', 'like', '%' . $request->search . '%');
             })
+            ->when($request->filled('type'), fn ($query) => $query->where('type', $request->type))
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
                 fn ($query) => $query->orderBy(
@@ -216,6 +219,7 @@ class RoleController extends BaseController
         $rules = [
             'name' => ['required', 'string', 'max:125', Rule::unique('roles')->ignore($primaryId)],
             'description' => ['required', 'string', 'max:125'],
+            'type' => ['required', 'integer', new Enum(RoleType::class)],
             'permission_ids' => ['array', Rule::requiredIf(fn () => $request->isMethod('post'))],
             'permission_ids.*' => [Rule::requiredIf(fn () => $request->isMethod('post')), Rule::exists('permissions', 'id')],
         ];

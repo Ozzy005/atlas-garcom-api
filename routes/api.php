@@ -23,6 +23,12 @@ Route::middleware(['auth'])->group(function () {
     Route::apiResource('tenants', App\Http\Controllers\API\TenantController::class)->except(['destroy']);;
     Route::delete('tenants', [App\Http\Controllers\API\TenantController::class, 'destroy']);
 
+    Route::apiResource('signatures', App\Http\Controllers\API\SignatureController::class)->except(['destroy']);
+    Route::delete('signatures', [App\Http\Controllers\API\SignatureController::class, 'destroy']);
+
+    Route::apiResource('due-days', App\Http\Controllers\API\DueDayController::class)->except(['destroy']);
+    Route::delete('due-days', [App\Http\Controllers\API\DueDayController::class, 'destroy']);
+
     Route::apiResource('payment-methods', App\Http\Controllers\API\PaymentMethodController::class)->except(['destroy']);
     Route::delete('payment-methods', [App\Http\Controllers\API\PaymentMethodController::class, 'destroy']);
 
@@ -44,4 +50,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('status', [App\Http\Controllers\API\StatusController::class, 'status']);
     Route::get('tenant-status', [App\Http\Controllers\API\StatusController::class, 'tenantStatus']);
+    Route::get('role-types', [App\Http\Controllers\API\StatusController::class, 'roleTypes']);
+    Route::get('recurrences', [App\Http\Controllers\API\StatusController::class, 'recurrences']);
 });
