@@ -29,10 +29,12 @@ class SignatureController extends BaseController
     public function index(Request $request): JsonResponse
     {
         $query = Signature::query()
+            ->with('dueDays', 'modules')
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->search . '%')
                     ->orWhere('description', 'like', '%' . $request->search . '%');
             })
+            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->status))
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
                 fn ($query) => $query->orderBy(

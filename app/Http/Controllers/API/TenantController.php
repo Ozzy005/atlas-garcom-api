@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Exceptions\HttpException;
 use App\Http\Requests\PersonRequest;
 use App\Models\Person;
+use App\Models\Signature;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Rules\modelPersonRelationship;
@@ -83,7 +84,12 @@ class TenantController extends BaseController
             $inputs['name'] = $person->full_name;
             $inputs['password'] = Hash::make($inputs['nif']);
             $user = User::query()->create($inputs);
-            $user->assignRole('tenant');
+
+            $signature = Signature::query()
+                ->with('modules')
+                ->findOrFail($inputs['signature_id']);
+
+            $user->syncRoles($signature->modules->map(fn ($item) => $item->name));
 
             DB::commit();
             return $this->sendResponse([], 'Registro criado com sucesso!', 201);
@@ -111,6 +117,7 @@ class TenantController extends BaseController
     public function show($id): JsonResponse
     {
         $item = Tenant::personQuery()
+            ->with('signature.dueDays')
             ->findOrFail($id);
 
         return $this->sendResponse($item);
@@ -144,6 +151,12 @@ class TenantController extends BaseController
             $inputs = $request->all();
             $item->person->fill($inputs)->save();
             $item->fill($inputs)->save();
+
+            $signature = Signature::query()
+                ->with('modules')
+                ->findOrFail($inputs['signature_id']);
+
+            $item->person->user->syncRoles($signature->modules->map(fn ($item) => $item->name));
 
             DB::commit();
             return $this->sendResponse([], 'Registro editado com sucesso!');
@@ -221,7 +234,7 @@ class TenantController extends BaseController
             'nif' => [new modelPersonRelationship(Tenant::class, $primaryId)],
             'email' => [new modelPersonRelationship(Tenant::class, $primaryId)],
             'signature_id' => ['required', 'integer', Rule::exists('signatures', 'id')],
-            'due_day_id' => ['required', 'integer', Rule::exists('due_day_id', 'id')],
+            'due_day_id' => ['required', 'integer', Rule::exists('due_days', 'id')],
             'status' => ['required', 'integer', new Enum(\App\Enums\TenantStatus::class)]
         ];
 
