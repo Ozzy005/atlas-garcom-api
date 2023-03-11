@@ -29,7 +29,7 @@ class PersonRequest extends FormRequest
             'nif' => ['required', 'string', new CpfCnpj],
             'full_name' => ['required', 'string', 'max:100'],
             'name' => ['nullable', 'string', 'max:50'],
-            'state_registration' => ['nullable', 'string', 'max:15'],
+            'state_registration' => ['required', 'string', 'max:15'],
             'city_registration' => ['nullable', 'string', 'max:12'],
             'birthdate' => ['required', 'string', 'date'],
             'email' => ['required', 'string', 'max:100'],

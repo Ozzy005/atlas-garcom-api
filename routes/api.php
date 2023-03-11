@@ -48,8 +48,5 @@ Route::middleware(['auth'])->group(function () {
     Route::apiResource('permissions', App\Http\Controllers\API\PermissionController::class)->only(['index', 'show', 'update']);
     Route::get('permissions-tree', [App\Http\Controllers\API\PermissionController::class, 'permissionsToTree']);
 
-    Route::get('status', [App\Http\Controllers\API\StatusController::class, 'status']);
-    Route::get('tenant-status', [App\Http\Controllers\API\StatusController::class, 'tenantStatus']);
-    Route::get('role-types', [App\Http\Controllers\API\StatusController::class, 'roleTypes']);
-    Route::get('recurrences', [App\Http\Controllers\API\StatusController::class, 'recurrences']);
+    Route::get('enums', [App\Http\Controllers\API\EnumController::class, 'index']);
 });
