@@ -82,7 +82,7 @@ class UserController extends BaseController
             $inputs['password'] = Hash::make($inputs['password']);
 
             $user = User::query()->create($inputs);
-            $user->roles()->sync($inputs['roles']);
+            $user->roles()->sync($inputs['roles_ids']);
 
             DB::commit();
             return $this->sendResponse([], 'Registro criado com sucesso!', 201);
@@ -151,7 +151,7 @@ class UserController extends BaseController
             $inputs['name'] = $item->person->full_name;
 
             $item->fill($inputs)->save();
-            $item->roles()->sync($inputs['roles']);
+            $item->roles()->sync($inputs['roles_ids']);
 
             DB::commit();
             return $this->sendResponse([], 'Registro editado com sucesso!');
@@ -234,8 +234,8 @@ class UserController extends BaseController
             'status' => ['required', 'integer', new Enum(\App\Enums\Status::class)],
             'email' => [new modelPersonRelationship(User::class, $primaryId)],
             'password' => ['confirmed', Rule::requiredIf(fn () => $request->isMethod('post')), Rules\Password::defaults()],
-            'roles' => ['required', 'array'],
-            'roles.*' => ['required', Rule::exists('roles', 'id')]
+            'roles_ids' => ['required', 'array'],
+            'roles_ids.*' => ['required', Rule::exists('roles', 'id')]
         ];
 
         $messages = [];

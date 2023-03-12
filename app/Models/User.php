@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\Status;
 use App\Traits\ScopePersonQuery;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -51,6 +52,15 @@ class User extends Authenticatable
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'roles_ids'
+    ];
+
+    /**
      * Get the person that owns the User
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -58,5 +68,12 @@ class User extends Authenticatable
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
+    }
+
+    public function rolesIds(): Attribute
+    {
+        return new Attribute(
+            get: fn () => !empty($this->roles) ? $this->roles->pluck('id') : []
+        );
     }
 }

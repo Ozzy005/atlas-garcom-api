@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Recurrence;
 use App\Enums\Status;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -41,6 +42,16 @@ class Signature extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'due_days_ids',
+        'modules_ids'
+    ];
+
+    /**
      * The dueDays that belong to the Signature
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
@@ -48,6 +59,13 @@ class Signature extends Model
     public function dueDays(): BelongsToMany
     {
         return $this->belongsToMany(DueDay::class, 'due_day_signature');
+    }
+
+    public function dueDaysIds(): Attribute
+    {
+        return new Attribute(
+            get: fn () => !empty($this->dueDays) ? $this->dueDays->pluck('id') : []
+        );
     }
 
     /**
@@ -58,5 +76,12 @@ class Signature extends Model
     public function modules(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);
+    }
+
+    public function modulesIds(): Attribute
+    {
+        return new Attribute(
+            get: fn () => !empty($this->modules) ? $this->modules->pluck('id') : []
+        );
     }
 }

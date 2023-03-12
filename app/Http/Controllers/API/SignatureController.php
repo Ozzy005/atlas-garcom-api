@@ -74,8 +74,8 @@ class SignatureController extends BaseController
             $inputs['discounted_price'] = moneyToFloat($inputs['discounted_price']);
             $inputs['total_price'] = moneyToFloat($inputs['total_price']);
             $item = Signature::query()->create($inputs);
-            $item->dueDays()->sync($inputs['due_days']);
-            $item->modules()->sync($inputs['modules']);
+            $item->dueDays()->sync($inputs['due_days_ids']);
+            $item->modules()->sync($inputs['modules_ids']);
 
             DB::commit();
             return $this->sendResponse([], 'Registro criado com sucesso!', 201);
@@ -140,8 +140,8 @@ class SignatureController extends BaseController
             $inputs['discounted_price'] = moneyToFloat($inputs['discounted_price']);
             $inputs['total_price'] = moneyToFloat($inputs['total_price']);
             $item->fill($inputs)->save();
-            $item->dueDays()->sync($inputs['due_days']);
-            $item->modules()->sync($inputs['modules']);
+            $item->dueDays()->sync($inputs['due_days_ids']);
+            $item->modules()->sync($inputs['modules_ids']);
 
             DB::commit();
             return $this->sendResponse([], 'Registro editado com sucesso!');
@@ -224,10 +224,10 @@ class SignatureController extends BaseController
             'discount' => ['nullable', 'string', 'max:5'],
             'discounted_price' => ['nullable', 'string', 'max:12'],
             'total_price' => ['required', 'string', 'max:12'],
-            'due_days' => ['required', 'array'],
-            'due_days.*' => ['required', 'integer', Rule::exists('due_days', 'id')],
-            'modules' => ['required', 'array'],
-            'modules.*' => ['required', 'integer', Rule::exists('roles', 'id')],
+            'due_days_ids' => ['required', 'array'],
+            'due_days_ids.*' => ['required', 'integer', Rule::exists('due_days', 'id')],
+            'modules_ids' => ['required', 'array'],
+            'modules_ids.*' => ['required', 'integer', Rule::exists('roles', 'id')],
             'status' => ['required', 'integer', new Enum(\App\Enums\Status::class)]
         ];
 

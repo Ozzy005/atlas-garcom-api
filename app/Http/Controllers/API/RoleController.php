@@ -70,7 +70,7 @@ class RoleController extends BaseController
 
             $inputs = $request->all();
             $role = Role::query()->create($inputs);
-            $role->permissions()->sync($inputs['permission_ids']);
+            $role->permissions()->sync($inputs['permissions_ids']);
 
             DB::commit();
             return $this->sendResponse([], 'Registro criado com sucesso!', 201);
@@ -100,8 +100,6 @@ class RoleController extends BaseController
         $item = Role::query()
             ->with('permissions')
             ->findOrFail($id);
-
-        $item->permission_ids = $item->permissions->pluck('id');
 
         return $this->sendResponse($item);
     }
@@ -134,7 +132,7 @@ class RoleController extends BaseController
 
             $inputs = $request->all();
             $item->fill($inputs)->save();
-            $item->permissions()->sync($inputs['permission_ids']);
+            $item->permissions()->sync($inputs['permissions_ids']);
 
             DB::commit();
             return $this->sendResponse([], 'Registro editado com sucesso!');
@@ -220,8 +218,8 @@ class RoleController extends BaseController
             'name' => ['required', 'string', 'max:125', Rule::unique('roles')->ignore($primaryId)],
             'description' => ['required', 'string', 'max:125'],
             'type' => ['required', 'integer', new Enum(RoleType::class)],
-            'permission_ids' => ['array', Rule::requiredIf(fn () => $request->isMethod('post'))],
-            'permission_ids.*' => [Rule::requiredIf(fn () => $request->isMethod('post')), Rule::exists('permissions', 'id')],
+            'permissions_ids' => ['array', Rule::requiredIf(fn () => $request->isMethod('post'))],
+            'permissions_ids.*' => [Rule::requiredIf(fn () => $request->isMethod('post')), Rule::exists('permissions', 'id')],
         ];
 
         $messages = [];
