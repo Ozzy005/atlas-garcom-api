@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->tinyInteger('recurrence')->unsigned()->default(\App\Enums\Recurrence::MONTHLY->value);
             $table->decimal('price', 12, 2)->default(0);
-            $table->boolean('hasDiscount')->default(false);
+            $table->boolean('has_discount')->default(false);
             $table->decimal('discount', 5, 2)->default(0);
             $table->decimal('discounted_price', 12, 2)->default(0);
             $table->decimal('total_price', 12, 2)->default(0);

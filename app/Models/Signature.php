@@ -23,7 +23,7 @@ class Signature extends Model
         'description',
         'recurrence',
         'price',
-        'hasDiscount',
+        'has_discount',
         'discount',
         'discounted_price',
         'total_price',
@@ -36,7 +36,7 @@ class Signature extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'hasDiscount' => 'boolean',
+        'has_discount' => 'boolean',
         'recurrence' => Recurrence::class,
         'status' => Status::class
     ];

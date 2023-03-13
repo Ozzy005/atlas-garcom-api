@@ -15,96 +15,90 @@ class Permission extends \Spatie\Permission\Models\Permission
             'description' => 'Painel'
         ],
         [
-            'name' => 'registrations_view',
-            'description' => 'Cadastros',
+            'name' => 'people_view',
+            'description' => 'Pessoas',
             'children' => [
                 [
-                    'name' => 'people_view',
-                    'description' => 'Pessoas',
+                    'name' => 'tenants_group_view',
+                    'description' => 'Contratantes',
                     'children' => [
-                        [
-                            'name' => 'tenants_group_view',
-                            'description' => 'Contratantes',
-                            'children' => [
-                                array('name' => 'tenants_view', 'description' => 'Visualizar'),
-                                array('name' => 'tenants_create', 'description' => 'Criar'),
-                                array('name' => 'tenants_edit', 'description' => 'Editar'),
-                                array('name' => 'tenants_delete', 'description' => 'Deletar')
-                            ]
-                        ]
+                        array('name' => 'tenants_view', 'description' => 'Visualizar'),
+                        array('name' => 'tenants_create', 'description' => 'Criar'),
+                        array('name' => 'tenants_edit', 'description' => 'Editar'),
+                        array('name' => 'tenants_delete', 'description' => 'Deletar')
+                    ]
+                ]
+            ]
+        ],
+        [
+            'name' => 'operational_view',
+            'description' => 'Operacional',
+            'children' => [
+                [
+                    'name' => 'signatures_group_view',
+                    'description' => 'Assinaturas',
+                    'children' => [
+                        array('name' => 'signatures_view', 'description' => 'Visualizar'),
+                        array('name' => 'signatures_create', 'description' => 'Criar'),
+                        array('name' => 'signatures_edit', 'description' => 'Editar'),
+                        array('name' => 'signatures_delete', 'description' => 'Deletar')
                     ]
                 ],
                 [
-                    'name' => 'operational_view',
-                    'description' => 'Operacional',
+                    'name' => 'due_days_group_view',
+                    'description' => 'Dias de Vencimento',
                     'children' => [
-                        [
-                            'name' => 'signatures_group_view',
-                            'description' => 'Assinaturas',
-                            'children' => [
-                                array('name' => 'signatures_view', 'description' => 'Visualizar'),
-                                array('name' => 'signatures_create', 'description' => 'Criar'),
-                                array('name' => 'signatures_edit', 'description' => 'Editar'),
-                                array('name' => 'signatures_delete', 'description' => 'Deletar')
-                            ]
-                        ],
-                        [
-                            'name' => 'due_days_group_view',
-                            'description' => 'Dias de Vencimento',
-                            'children' => [
-                                array('name' => 'due-days_view', 'description' => 'Visualizar'),
-                                array('name' => 'due-days_create', 'description' => 'Criar'),
-                                array('name' => 'due-days_edit', 'description' => 'Editar'),
-                                array('name' => 'due-days_delete', 'description' => 'Deletar')
-                            ]
-                        ]
+                        array('name' => 'due-days_view', 'description' => 'Visualizar'),
+                        array('name' => 'due-days_create', 'description' => 'Criar'),
+                        array('name' => 'due-days_edit', 'description' => 'Editar'),
+                        array('name' => 'due-days_delete', 'description' => 'Deletar')
+                    ]
+                ]
+            ]
+        ],
+        [
+            'name' => 'general_view',
+            'description' => 'Geral',
+            'children' => [
+                [
+                    'name' => 'payment-methods_group_view',
+                    'description' => 'Métodos de Pagamento',
+                    'children' => [
+                        array('name' => 'payment-methods_view', 'description' => 'Visualizar'),
+                        array('name' => 'payment-methods_create', 'description' => 'Criar'),
+                        array('name' => 'payment-methods_edit', 'description' => 'Editar'),
+                        array('name' => 'payment-methods_delete', 'description' => 'Deletar')
                     ]
                 ],
                 [
-                    'name' => 'general_view',
-                    'description' => 'Geral',
+                    'name' => 'measurement-units_group_view',
+                    'description' => 'Unidades de Medida',
                     'children' => [
-                        [
-                            'name' => 'payment-methods_group_view',
-                            'description' => 'Métodos de Pagamento',
-                            'children' => [
-                                array('name' => 'payment-methods_view', 'description' => 'Visualizar'),
-                                array('name' => 'payment-methods_create', 'description' => 'Criar'),
-                                array('name' => 'payment-methods_edit', 'description' => 'Editar'),
-                                array('name' => 'payment-methods_delete', 'description' => 'Deletar')
-                            ]
-                        ],
-                        [
-                            'name' => 'measurement-units_group_view',
-                            'description' => 'Unidades de Medida',
-                            'children' => [
-                                array('name' => 'measurement-units_view', 'description' => 'Visualizar'),
-                                array('name' => 'measurement-units_create', 'description' => 'Criar'),
-                                array('name' => 'measurement-units_edit', 'description' => 'Editar'),
-                                array('name' => 'measurement-units_delete', 'description' => 'Deletar')
-                            ]
-                        ],
-                        [
-                            'name' => 'ncms_group_view',
-                            'description' => 'NCMS',
-                            'children' => [
-                                array('name' => 'ncms_view', 'description' => 'Visualizar')
-                            ]
-                        ],
-                        [
-                            'name' => 'states_group_view',
-                            'description' => 'Estados',
-                            'children' => [
-                                array('name' => 'states_view', 'description' => 'Visualizar')
-                            ]
-                        ],
-                        [
-                            'name' => 'cities_group_view',
-                            'description' => 'Cidades',
-                            'children' => [
-                                array('name' => 'cities_view', 'description' => 'Visualizar')
-                            ]
-                        ]
+                        array('name' => 'measurement-units_view', 'description' => 'Visualizar'),
+                        array('name' => 'measurement-units_create', 'description' => 'Criar'),
+                        array('name' => 'measurement-units_edit', 'description' => 'Editar'),
+                        array('name' => 'measurement-units_delete', 'description' => 'Deletar')
+                    ]
+                ],
+                [
+                    'name' => 'ncms_group_view',
+                    'description' => 'NCMS',
+                    'children' => [
+                        array('name' => 'ncms_view', 'description' => 'Visualizar')
+                    ]
+                ],
+                [
+                    'name' => 'states_group_view',
+                    'description' => 'Estados',
+                    'children' => [
+                        array('name' => 'states_view', 'description' => 'Visualizar')
+                    ]
+                ],
+                [
+                    'name' => 'cities_group_view',
+                    'description' => 'Cidades',
+                    'children' => [
+                        array('name' => 'cities_view', 'description' => 'Visualizar')
                     ]
                 ]
             ]

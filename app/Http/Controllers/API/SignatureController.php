@@ -220,7 +220,7 @@ class SignatureController extends BaseController
             'description' => ['required', 'string', 'max:100'],
             'recurrence' => ['required', 'integer', new Enum(\App\Enums\Recurrence::class)],
             'price' => ['required', 'string', 'max:12'],
-            'hasDiscount' => ['required', 'boolean'],
+            'has_discount' => ['required', 'boolean'],
             'discount' => ['nullable', 'string', 'max:5'],
             'discounted_price' => ['nullable', 'string', 'max:12'],
             'total_price' => ['required', 'string', 'max:12'],
