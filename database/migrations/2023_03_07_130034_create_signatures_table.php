@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('discount', 5, 2)->default(0);
             $table->decimal('discounted_price', 12, 2)->default(0);
             $table->decimal('total_price', 12, 2)->default(0);
+            $table->string('color')->nullable();
             $table->tinyInteger('status')->unsigned()->default(\App\Enums\Status::ACTIVE->value);
             $table->timestamps();
         });

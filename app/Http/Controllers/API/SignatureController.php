@@ -218,6 +218,7 @@ class SignatureController extends BaseController
         $rules = [
             'name' => ['required', 'string', 'max:30'],
             'description' => ['required', 'string', 'max:100'],
+            'color' => ['required', 'string', 'regex:/^#([a-f0-9]{6}|[a-f0-9]{3})$/i'],
             'recurrence' => ['required', 'integer', new Enum(\App\Enums\Recurrence::class)],
             'price' => ['required', 'string', 'max:12'],
             'has_discount' => ['required', 'boolean'],

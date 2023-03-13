@@ -21,6 +21,7 @@ class Signature extends Model
     protected $fillable = [
         'name',
         'description',
+        'color',
         'recurrence',
         'price',
         'has_discount',
