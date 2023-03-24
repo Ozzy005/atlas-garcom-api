@@ -97,10 +97,10 @@ class TenantController extends BaseController
         }
     }
 
-    public function show($id): JsonResponse
+    public function show(Request $request, $id): JsonResponse
     {
         $item = Tenant::personQuery()
-            ->with('signature.dueDays')
+            ->when($request->filled('with'), fn ($query) => $query->with($request->with))
             ->findOrFail($id);
 
         return $this->sendResponse($item);

@@ -78,10 +78,10 @@ class RoleController extends BaseController
         }
     }
 
-    public function show($id): JsonResponse
+    public function show(Request $request, $id): JsonResponse
     {
         $item = Role::query()
-            ->with('permissions')
+            ->when($request->filled('with'), fn ($query) => $query->with($request->with))
             ->findOrFail($id);
 
         return $this->sendResponse($item);
