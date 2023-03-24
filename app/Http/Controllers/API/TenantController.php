@@ -27,11 +27,6 @@ class TenantController extends BaseController
         $this->middleware('permission:tenants_delete', ['only' => ['destroy']]);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request): JsonResponse
     {
         $query = Tenant::personQuery()
@@ -53,12 +48,6 @@ class TenantController extends BaseController
         return $this->sendResponse($data);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function store(PersonRequest $request): JsonResponse
     {
         $validator = Validator::make(
@@ -108,12 +97,6 @@ class TenantController extends BaseController
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id): JsonResponse
     {
         $item = Tenant::personQuery()
@@ -123,13 +106,6 @@ class TenantController extends BaseController
         return $this->sendResponse($item);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(PersonRequest $request, $id): JsonResponse
     {
         $item = Tenant::query()
