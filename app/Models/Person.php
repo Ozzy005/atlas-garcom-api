@@ -11,53 +11,53 @@ class Person extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
+        'nif',
         'full_name',
         'name',
-        'birthdate',
-        'nif',
         'state_registration',
         'city_registration',
+        'birthdate',
         'email',
         'phone',
+        'city_id',
         'zip_code',
         'address',
-        'number',
         'district',
-        'complement',
-        'city_id'
+        'number',
+        'complement'
     ];
 
-    /**
-     * Get the city that owns the Person
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+    protected $casts = [
+        'id' => 'integer',
+        'nif' => 'string',
+        'full_name' => 'string',
+        'name' => 'string',
+        'state_registration' => 'string',
+        'city_registration' => 'string',
+        'birthdate' => 'string',
+        'email' => 'string',
+        'phone' => 'string',
+        'city_id' => 'integer',
+        'zip_code' => 'string',
+        'address' => 'string',
+        'district' => 'string',
+        'number' => 'string',
+        'complement' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
+    ];
+
     public function city(): BelongsTo
     {
         return $this->belongsTo(City::class);
     }
 
-    /**
-     * Get the tenant associated with the Person
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
     public function tenant(): HasOne
     {
         return $this->hasOne(Tenant::class);
     }
 
-    /**
-     * Get the user associated with the Person
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
     public function user(): HasOne
     {
         return $this->hasOne(User::class);

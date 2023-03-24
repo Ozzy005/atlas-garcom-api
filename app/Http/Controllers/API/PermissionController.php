@@ -18,11 +18,6 @@ class PermissionController extends BaseController
         $this->middleware('permission:permissions_view', ['only' => ['show', 'index']]);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request): JsonResponse
     {
         $query = Permission::query()
@@ -43,11 +38,6 @@ class PermissionController extends BaseController
         return $this->sendResponse($data);
     }
 
-    /**
-     * Display a tree resource listing.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function permissionsToTree(): JsonResponse
     {
         $data = Permission::query()->get()->toTree();
@@ -55,11 +45,6 @@ class PermissionController extends BaseController
         return $this->sendResponse($data);
     }
 
-    /**
-     * Display authenticated user permissions.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function userPermissions(): JsonResponse
     {
         $user = User::query()->findOrFail(auth()->id());
@@ -69,12 +54,6 @@ class PermissionController extends BaseController
         return $this->sendResponse($permissions);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id): JsonResponse
     {
         $item = Permission::query()->findOrFail($id);
@@ -82,13 +61,6 @@ class PermissionController extends BaseController
         return $this->sendResponse($item);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(Request $request, $id): JsonResponse
     {
         $item = Permission::query()->findOrFail($id);
@@ -124,7 +96,7 @@ class PermissionController extends BaseController
         }
     }
 
-    private function rules(Request $request, $primaryId = null, bool $changeMessages = false)
+    private function rules(Request $request, $primaryId = null, $changeMessages = false)
     {
         $rules = [
             'description' => ['required', 'string', 'max:125']

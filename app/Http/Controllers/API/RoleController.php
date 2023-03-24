@@ -22,11 +22,6 @@ class RoleController extends BaseController
         $this->middleware('permission:roles_delete', ['only' => ['destroy']]);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request): JsonResponse
     {
         $query = Role::query()
@@ -48,12 +43,6 @@ class RoleController extends BaseController
         return $this->sendResponse($data);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make(
@@ -89,12 +78,6 @@ class RoleController extends BaseController
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id): JsonResponse
     {
         $item = Role::query()
@@ -104,13 +87,6 @@ class RoleController extends BaseController
         return $this->sendResponse($item);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(Request $request, $id): JsonResponse
     {
         $item = Role::query()->findOrFail($id);
@@ -151,12 +127,6 @@ class RoleController extends BaseController
         }
     }
 
-    /**
-     * Remove all specified resources from storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function destroy(Request $request): JsonResponse
     {
         $validator = Validator::make(
@@ -212,14 +182,14 @@ class RoleController extends BaseController
         }
     }
 
-    private function rules(Request $request, $primaryId = null, bool $changeMessages = false)
+    private function rules(Request $request, $primaryId = null, $changeMessages = false)
     {
         $rules = [
             'name' => ['required', 'string', 'max:125', Rule::unique('roles')->ignore($primaryId)],
             'description' => ['required', 'string', 'max:125'],
             'type' => ['required', 'integer', new Enum(RoleType::class)],
             'permissions_ids' => ['array', Rule::requiredIf(fn () => $request->isMethod('post'))],
-            'permissions_ids.*' => [Rule::requiredIf(fn () => $request->isMethod('post')), Rule::exists('permissions', 'id')],
+            'permissions_ids.*' => ['integer', Rule::requiredIf(fn () => $request->isMethod('post')), Rule::exists('permissions', 'id')]
         ];
 
         $messages = [];

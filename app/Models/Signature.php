@@ -13,11 +13,6 @@ class Signature extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'description',
@@ -31,32 +26,27 @@ class Signature extends Model
         'status'
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'has_discount' => 'boolean',
+        'id' => 'integer',
+        'name' => 'string',
+        'description' => 'string',
+        'color' => 'string',
         'recurrence' => Recurrence::class,
-        'status' => Status::class
+        'price' => 'float',
+        'has_discount' => 'boolean',
+        'discount' => 'float',
+        'discounted_price' => 'float',
+        'total_price' => 'float',
+        'status' => Status::class,
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array
-     */
     protected $appends = [
         'due_days_ids',
         'modules_ids'
     ];
 
-    /**
-     * The dueDays that belong to the Signature
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
     public function dueDays(): BelongsToMany
     {
         return $this->belongsToMany(DueDay::class, 'due_day_signature');
@@ -65,15 +55,10 @@ class Signature extends Model
     public function dueDaysIds(): Attribute
     {
         return new Attribute(
-            get: fn () => !empty($this->dueDays) ? $this->dueDays->pluck('id') : []
+            get: fn () => $this->relationLoaded('dueDays') ? $this->dueDays->pluck('id') : []
         );
     }
 
-    /**
-     * The modules that belong to the Signature
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
     public function modules(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);
@@ -82,7 +67,7 @@ class Signature extends Model
     public function modulesIds(): Attribute
     {
         return new Attribute(
-            get: fn () => !empty($this->modules) ? $this->modules->pluck('id') : []
+            get: fn () => $this->relationLoaded('modules') ? $this->modules->pluck('id') : []
         );
     }
 }

@@ -22,11 +22,6 @@ class PaymentMethodController extends BaseController
         $this->middleware('permission:payment-methods_delete', ['only' => ['destroy']]);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request): JsonResponse
     {
         $query = PaymentMethod::query()
@@ -47,12 +42,6 @@ class PaymentMethodController extends BaseController
         return $this->sendResponse($data);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make(
@@ -87,12 +76,6 @@ class PaymentMethodController extends BaseController
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id): JsonResponse
     {
         $item = PaymentMethod::query()
@@ -101,13 +84,6 @@ class PaymentMethodController extends BaseController
         return $this->sendResponse($item);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(Request $request, $id): JsonResponse
     {
         $item = PaymentMethod::query()
@@ -145,12 +121,6 @@ class PaymentMethodController extends BaseController
         }
     }
 
-    /**
-     * Remove all specified resources from storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function destroy(Request $request): JsonResponse
     {
         $validator = Validator::make(
@@ -196,7 +166,7 @@ class PaymentMethodController extends BaseController
         }
     }
 
-    private function rules(Request $request, $primaryId = null, bool $changeMessages = false)
+    private function rules(Request $request, $primaryId = null, $changeMessages = false)
     {
         $rules = [
             'code' => ['required', 'string', 'max:10'],

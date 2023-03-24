@@ -18,11 +18,6 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles, ScopePersonQuery;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'person_id',
         'name',
@@ -31,40 +26,28 @@ class User extends Authenticatable
         'status'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
+        'id' => 'integer',
+        'person_id' => 'integer',
+        'name' => 'string',
+        'email' => 'string',
         'email_verified_at' => 'datetime',
-        'status' => Status::class
+        'password' => 'string',
+        'remember_token' => 'string',
+        'status' => Status::class,
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array
-     */
     protected $appends = [
         'roles_ids'
     ];
 
-    /**
-     * Get the person that owns the User
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
@@ -73,7 +56,7 @@ class User extends Authenticatable
     public function rolesIds(): Attribute
     {
         return new Attribute(
-            get: fn () => !empty($this->roles) ? $this->roles->pluck('id') : []
+            get: fn () => $this->relationLoaded('roles') ? $this->roles->pluck('id') : []
         );
     }
 }

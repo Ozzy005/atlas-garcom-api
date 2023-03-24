@@ -9,23 +9,18 @@ class DueDay extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'day',
         'description',
         'status'
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'status' => \App\Enums\Status::class
+        'id' => 'integer',
+        'day' => 'integer',
+        'description' => 'string',
+        'status' => \App\Enums\Status::class,
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 }

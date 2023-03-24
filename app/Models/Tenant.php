@@ -12,11 +12,6 @@ class Tenant extends Model
 {
     use HasFactory, ScopePersonQuery;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'person_id',
         'signature_id',
@@ -24,40 +19,26 @@ class Tenant extends Model
         'status'
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'status' => TenantStatus::class
+        'id' => 'integer',
+        'person_id' => 'integer',
+        'signature_id' => 'integer',
+        'due_day_id' => 'integer',
+        'status' => TenantStatus::class,
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 
-    /**
-     * Get the person that owns the Tenant
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
     }
 
-    /**
-     * Get the signature that owns the Tenant
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function signature(): BelongsTo
     {
         return $this->belongsTo(Signature::class);
     }
 
-    /**
-     * Get the dueDay that owns the Tenant
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function dueDay(): BelongsTo
     {
         return $this->belongsTo(DueDay::class);

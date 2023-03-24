@@ -26,11 +26,6 @@ class UserController extends BaseController
         $this->middleware('permission:users_delete', ['only' => ['destroy']]);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request): JsonResponse
     {
         $query = User::personQuery()
@@ -52,12 +47,6 @@ class UserController extends BaseController
         return $this->sendResponse($data);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function store(PersonRequest $request): JsonResponse
     {
         $validator = Validator::make(
@@ -101,12 +90,6 @@ class UserController extends BaseController
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id): JsonResponse
     {
         $item = User::personQuery()
@@ -116,13 +99,6 @@ class UserController extends BaseController
         return $this->sendResponse($item);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(PersonRequest $request, $id): JsonResponse
     {
         $item = User::query()
@@ -170,12 +146,6 @@ class UserController extends BaseController
         }
     }
 
-    /**
-     * Remove all specified resources from storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function destroy(Request $request): JsonResponse
     {
         $validator = Validator::make(
@@ -227,15 +197,15 @@ class UserController extends BaseController
         }
     }
 
-    private function rules(Request $request, $primaryId = null, bool $changeMessages = false)
+    private function rules(Request $request, $primaryId = null, $changeMessages = false)
     {
         $rules = [
             'nif' => [new modelPersonRelationship(User::class, $primaryId)],
             'status' => ['required', 'integer', new Enum(\App\Enums\Status::class)],
             'email' => [new modelPersonRelationship(User::class, $primaryId)],
-            'password' => ['confirmed', Rule::requiredIf(fn () => $request->isMethod('post')), Rules\Password::defaults()],
+            'password' => ['string', 'confirmed', Rule::requiredIf(fn () => $request->isMethod('post')), Rules\Password::defaults()],
             'roles_ids' => ['required', 'array'],
-            'roles_ids.*' => ['required', Rule::exists('roles', 'id')]
+            'roles_ids.*' => ['required', 'integer', Rule::exists('roles', 'id')]
         ];
 
         $messages = [];

@@ -13,11 +13,6 @@ class NcmController extends BaseController
         $this->middleware('permission:ncms_view', ['only' => ['show', 'index']]);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request): JsonResponse
     {
         $query = Ncm::query()
@@ -38,12 +33,6 @@ class NcmController extends BaseController
         return $this->sendResponse($data);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id): JsonResponse
     {
         $item = Ncm::query()->findOrFail($id);

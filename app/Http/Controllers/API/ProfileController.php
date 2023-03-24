@@ -12,11 +12,6 @@ use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends BaseController
 {
-    /**
-     * Display the specified resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show(): JsonResponse
     {
         $item = User::query()->findOrFail(auth()->id());
@@ -24,12 +19,6 @@ class ProfileController extends BaseController
         return $this->sendResponse($item);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(Request $request): JsonResponse
     {
         $item = User::query()
@@ -69,7 +58,7 @@ class ProfileController extends BaseController
         }
     }
 
-    private function rules(Request $request, $primaryId = null, bool $changeMessages = false)
+    private function rules(Request $request, $primaryId = null, $changeMessages = false)
     {
         $rules = [
             'name' => ['required', 'string', 'max:60'],

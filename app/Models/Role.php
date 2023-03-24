@@ -10,20 +10,16 @@ class Role extends \Spatie\Permission\Models\Role
 {
     use HasFactory;
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'type' => RoleType::class
+        'id' => 'integer',
+        'name' => 'string',
+        'description' => 'string',
+        'guard_name' => 'string',
+        'type' => RoleType::class,
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array
-     */
     protected $appends = [
         'permissions_ids'
     ];
@@ -31,7 +27,7 @@ class Role extends \Spatie\Permission\Models\Role
     public function permissionsIds(): Attribute
     {
         return new Attribute(
-            get: fn () => !empty($this->permissions) ? $this->permissions->pluck('id') : []
+            get: fn () => $this->relationLoaded('permissions') ? $this->permissions->pluck('id') : []
         );
     }
 }

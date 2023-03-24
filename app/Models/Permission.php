@@ -9,6 +9,18 @@ class Permission extends \Spatie\Permission\Models\Permission
 {
     use HasFactory, NodeTrait;
 
+    protected $casts = [
+        'id' => 'integer',
+        'name' => 'string',
+        'description' => 'string',
+        'guard_name' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        '_lft' => 'integer',
+        '_rgt' => 'integer',
+        'parent_id' => 'integer'
+    ];
+
     const permissions = [
         [
             'name' => 'dashboard_view',

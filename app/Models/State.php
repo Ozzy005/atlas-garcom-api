@@ -10,11 +10,15 @@ class State extends Model
 {
     use HasFactory;
 
-    /**
-     * Get all of the cities for the State
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
+    protected $casts = [
+        'id' => 'integer',
+        'title' => 'string',
+        'letter' => 'string',
+        'iso' => 'integer',
+        'slug' => 'string',
+        'population' => 'integer'
+    ];
+
     public function cities(): HasMany
     {
         return $this->hasMany(City::class);

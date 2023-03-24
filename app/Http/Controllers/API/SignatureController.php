@@ -21,15 +21,10 @@ class SignatureController extends BaseController
         $this->middleware('permission:signatures_delete', ['only' => ['destroy']]);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request): JsonResponse
     {
         $query = Signature::query()
-            ->with('dueDays', 'modules')
+            ->when($request->filled('with'), fn ($query) => $query->with($request->with))
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->search . '%')
                     ->orWhere('description', 'like', '%' . $request->search . '%');
@@ -48,12 +43,6 @@ class SignatureController extends BaseController
         return $this->sendResponse($data);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make(
@@ -95,12 +84,6 @@ class SignatureController extends BaseController
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id): JsonResponse
     {
         $item = Signature::query()
@@ -110,13 +93,6 @@ class SignatureController extends BaseController
         return $this->sendResponse($item);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(Request $request, $id): JsonResponse
     {
         $item = Signature::query()
@@ -160,12 +136,6 @@ class SignatureController extends BaseController
         }
     }
 
-    /**
-     * Remove all specified resources from storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function destroy(Request $request): JsonResponse
     {
         $validator = Validator::make(
@@ -213,7 +183,7 @@ class SignatureController extends BaseController
         }
     }
 
-    private function rules(Request $request, $primaryId = null, bool $changeMessages = false)
+    private function rules(Request $request, $primaryId = null, $changeMessages = false)
     {
         $rules = [
             'name' => ['required', 'string', 'max:30'],

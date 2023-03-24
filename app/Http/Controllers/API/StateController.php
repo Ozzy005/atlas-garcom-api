@@ -13,11 +13,6 @@ class StateController extends BaseController
         $this->middleware('permission:states_view', ['only' => ['show', 'index']]);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request): JsonResponse
     {
         $query = State::query()
@@ -38,12 +33,6 @@ class StateController extends BaseController
         return $this->sendResponse($data);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id): JsonResponse
     {
         $item = State::query()->findOrFail($id);

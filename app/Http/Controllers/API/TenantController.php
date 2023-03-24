@@ -175,12 +175,6 @@ class TenantController extends BaseController
         }
     }
 
-    /**
-     * Remove all specified resources from storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function destroy(Request $request): JsonResponse
     {
         $validator = Validator::make(

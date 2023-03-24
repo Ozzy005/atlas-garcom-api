@@ -11,22 +11,25 @@ class City extends Model
 {
     use HasFactory;
 
-    /**
-     * Get the state that owns the City
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+    protected $casts = [
+        'id' => 'integer',
+        'title' => 'string',
+        'iso' => 'integer',
+        'iso_ddd' => 'integer',
+        'status' => 'integer',
+        'slug' => 'string',
+        'population' => 'integer',
+        'lat' => 'float',
+        'long' => 'float',
+        'income_per_capita' => 'float',
+        'state_id' => 'integer'
+    ];
+
     public function state(): BelongsTo
     {
         return $this->belongsTo(State::class);
     }
 
-    /**
-     * Scope a query to include state information.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
     public function scopeStateQuery($query)
     {
         return $query->select(

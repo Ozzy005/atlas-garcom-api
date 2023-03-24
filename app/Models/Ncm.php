@@ -9,11 +9,6 @@ class Ncm extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'code',
         'description',
@@ -22,5 +17,16 @@ class Ncm extends Model
         'ato_type',
         'ato_number',
         'ato_year'
+    ];
+
+    protected $casts = [
+        'id' => 'integer',
+        'code' => 'string',
+        'description' => 'string',
+        'date_start' => 'date',
+        'date_end' => 'date',
+        'ato_type' => 'string',
+        'ato_number' => 'string',
+        'ato_year' => 'string'
     ];
 }

@@ -13,11 +13,6 @@ class CityController extends BaseController
         $this->middleware('permission:cities_view', ['only' => ['show', 'index']]);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request): JsonResponse
     {
         $query = City::stateQuery()
@@ -35,12 +30,6 @@ class CityController extends BaseController
         return $this->sendResponse($data);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id): JsonResponse
     {
         $item = City::stateQuery()->findOrFail($id);
