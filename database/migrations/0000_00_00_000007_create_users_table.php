@@ -20,8 +20,13 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
+            $table->foreignId('employer_id')->nullable()->constrained('tenants', 'id');
+            $table->foreignId('tenant_id')->nullable()->constrained();
+            $table->tinyInteger('is_tenant')->unsigned()->default(App\Enums\IsTenant::NOT->value);
+            $table->tinyInteger('is_employee')->unsigned()->default(App\Enums\IsEmployee::NOT->value);
+            $table->tinyInteger('is_admin')->unsigned()->default(\App\Enums\IsAdmin::NOT->value);
             $table->tinyInteger('status')->unsigned()->default(App\Enums\Status::ACTIVE->value);
+            $table->rememberToken();
             $table->timestamps();
         });
     }

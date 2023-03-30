@@ -26,4 +26,20 @@ enum Status: int
             static::INACTIVE => '#C10015',
         };
     }
+
+    public function active(): bool
+    {
+        return match ($this) {
+            static::ACTIVE => true,
+            static::INACTIVE => false,
+        };
+    }
+
+    public function notActive(): bool
+    {
+        return match ($this) {
+            static::ACTIVE => false,
+            static::INACTIVE => true,
+        };
+    }
 }

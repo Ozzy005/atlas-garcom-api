@@ -15,40 +15,42 @@ class ModulesSeeder extends Seeder
      */
     public function run()
     {
-        $data = [
-            [
-                'name' => 'users',
-                'description' => 'Usuários',
-                'type' => \App\Enums\RoleType::MODULE,
-                'permissions' => 'users_'
-            ],
-            [
-                'name' => 'roles',
-                'description' => 'Atribuições',
-                'type' => \App\Enums\RoleType::MODULE,
-                'permissions' => 'roles_'
-            ]
-        ];
+        Role::withoutEvents(function () {
+            $data = [
+                [
+                    'name' => 'users',
+                    'description' => 'Usuários',
+                    'type' => \App\Enums\RoleType::MODULE,
+                    'permissions' => 'users_'
+                ],
+                [
+                    'name' => 'roles',
+                    'description' => 'Atribuições',
+                    'type' => \App\Enums\RoleType::MODULE,
+                    'permissions' => 'roles_'
+                ]
+            ];
 
-        foreach ($data as $value) {
-            $permissions = $value['permissions'];
-            unset($value['permissions']);
+            foreach ($data as $value) {
+                $permissions = $value['permissions'];
+                unset($value['permissions']);
 
-            $module = Role::query()
-                ->updateOrCreate(
-                    ['name' => $value['name']],
-                    $value
-                );
+                $module = Role::query()
+                    ->updateOrCreate(
+                        ['name' => $value['name']],
+                        $value
+                    );
 
-            $module->permissions()
-                ->sync(
-                    Permission::query()
-                        ->where('name', 'like', '%' . $permissions . '%')
-                        ->get()
-                        ->toFlatTree()
-                );
+                $module->permissions()
+                    ->sync(
+                        Permission::query()
+                            ->where('name', 'like', '%' . $permissions . '%')
+                            ->get()
+                            ->toFlatTree()
+                    );
 
-            $this->command->info("  $module->id - Módulo {$value['name']} criado.");
-        }
+                $this->command->info("  $module->id - Módulo {$value['name']} criado.");
+            }
+        });
     }
 }

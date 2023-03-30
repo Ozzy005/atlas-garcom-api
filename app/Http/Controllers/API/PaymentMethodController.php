@@ -22,6 +22,11 @@ class PaymentMethodController extends BaseController
         $this->middleware('permission:payment-methods_delete', ['only' => ['destroy']]);
     }
 
+    public function publicIndex(Request $request): JsonResponse
+    {
+        return $this->index($request);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = PaymentMethod::query()

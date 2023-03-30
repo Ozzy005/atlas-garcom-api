@@ -40,7 +40,12 @@ class PermissionController extends BaseController
 
     public function permissionsToTree(): JsonResponse
     {
-        $data = Permission::query()->get()->toTree();
+        $user = User::query()->findOrFail(auth()->id());
+
+        $data = Permission::query()
+            ->whereIn('id', $user->getAllPermissions()->pluck('id')->toArray())
+            ->get()
+            ->toTree();
 
         return $this->sendResponse($data);
     }

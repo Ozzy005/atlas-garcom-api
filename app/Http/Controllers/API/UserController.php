@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\IsEmployee;
 use App\Exceptions\HttpException;
 use App\Http\Requests\PersonRequest;
 use App\Models\Person;
@@ -28,7 +29,9 @@ class UserController extends BaseController
 
     public function index(Request $request): JsonResponse
     {
-        $query = User::personQuery()
+        $query = User::query()
+            ->personQuery()
+            ->tenantQuery()
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where('full_name', 'like', '%' . $request->search . '%')
                     ->orWhere('nif', 'like', '%' . removeMask($request->search) . '%')
@@ -69,6 +72,7 @@ class UserController extends BaseController
             $inputs['person_id'] = $person->id;
             $inputs['name'] = $person->full_name;
             $inputs['password'] = Hash::make($inputs['password']);
+            $inputs['is_employee'] = IsEmployee::YES;
 
             $user = User::query()->create($inputs);
             $user->roles()->sync($inputs['roles_ids']);
@@ -92,7 +96,9 @@ class UserController extends BaseController
 
     public function show(Request $request, $id): JsonResponse
     {
-        $item = User::personQuery()
+        $item = User::query()
+            ->personQuery()
+            ->tenantQuery()
             ->when($request->filled('with'), fn ($query) => $query->with($request->with))
             ->findOrFail($id);
 
@@ -102,6 +108,7 @@ class UserController extends BaseController
     public function update(PersonRequest $request, $id): JsonResponse
     {
         $item = User::query()
+            ->tenantQuery()
             ->with('person')
             ->findOrFail($id);
 
@@ -114,8 +121,8 @@ class UserController extends BaseController
             if ($validator->fails()) {
                 throw new HttpException('Erro de validação!', $validator->errors()->toArray(), 422);
             }
-            if ($item->id == 1) {
-                throw new HttpException('Não é possível editar o usuário administrador!', [], 403);
+            if (auth()->id() != 1 && $item->id == 1) {
+                throw new HttpException('Não é possível editar o usuário administrador principal!', [], 403);
             }
 
             DB::beginTransaction();
@@ -170,6 +177,7 @@ class UserController extends BaseController
             DB::beginTransaction();
 
             $items = User::query()
+                ->tenantQuery()
                 ->whereIn('id', $request->items)
                 ->get();
 

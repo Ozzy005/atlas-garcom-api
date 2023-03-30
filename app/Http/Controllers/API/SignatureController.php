@@ -21,6 +21,11 @@ class SignatureController extends BaseController
         $this->middleware('permission:signatures_delete', ['only' => ['destroy']]);
     }
 
+    public function publicIndex(Request $request): JsonResponse
+    {
+        return $this->index($request);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = Signature::query()

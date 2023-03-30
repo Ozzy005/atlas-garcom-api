@@ -5815,16 +5815,16 @@
         },
         {
             "name": "laradumps/laradumps",
-            "version": "v1.9.0",
+            "version": "v1.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laradumps/laradumps.git",
-                "reference": "a517294b83499b02b993b1d59da671dc767c4309"
+                "reference": "0db48329b4df6a4a6533365c49380ad01cd39be9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laradumps/laradumps/zipball/a517294b83499b02b993b1d59da671dc767c4309",
-                "reference": "a517294b83499b02b993b1d59da671dc767c4309",
+                "url": "https://api.github.com/repos/laradumps/laradumps/zipball/0db48329b4df6a4a6533365c49380ad01cd39be9",
+                "reference": "0db48329b4df6a4a6533365c49380ad01cd39be9",
                 "shasum": ""
             },
             "require": {
@@ -5872,7 +5872,7 @@
             "homepage": "https://github.com/laradumps/laradumps",
             "support": {
                 "issues": "https://github.com/laradumps/laradumps/issues",
-                "source": "https://github.com/laradumps/laradumps/tree/v1.9.0"
+                "source": "https://github.com/laradumps/laradumps/tree/v1.9.3"
             },
             "funding": [
                 {
@@ -5880,7 +5880,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-02-10T15:37:15+00:00"
+            "time": "2023-03-02T20:57:40+00:00"
         },
         {
             "name": "laravel/breeze",

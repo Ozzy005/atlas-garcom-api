@@ -13,6 +13,11 @@ class CityController extends BaseController
         $this->middleware('permission:cities_view', ['only' => ['show', 'index']]);
     }
 
+    public function publicIndex(Request $request): JsonResponse
+    {
+        return $this->index($request);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = City::stateQuery()

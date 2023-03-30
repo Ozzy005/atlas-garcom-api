@@ -21,6 +21,11 @@ class MeasurementUnitController extends BaseController
         $this->middleware('permission:measurement-units_delete', ['only' => ['destroy']]);
     }
 
+    public function publicIndex(Request $request): JsonResponse
+    {
+        return $this->index($request);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = MeasurementUnit::query()

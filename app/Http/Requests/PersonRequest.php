@@ -32,7 +32,7 @@ class PersonRequest extends FormRequest
             'state_registration' => ['required', 'string', 'max:15'],
             'city_registration' => ['nullable', 'string', 'max:12'],
             'birthdate' => ['required', 'string', 'date'],
-            'email' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'string', 'email', 'max:100'],
             'phone' => ['required', 'string', 'max:11'],
             'city_id' => ['required', 'integer', Rule::exists('cities', 'id')],
             'zip_code' => ['required', 'string', 'max:8'],

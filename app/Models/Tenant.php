@@ -7,6 +7,8 @@ use App\Traits\ScopePersonQuery;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Tenant extends Model
 {
@@ -42,5 +44,15 @@ class Tenant extends Model
     public function dueDay(): BelongsTo
     {
         return $this->belongsTo(DueDay::class);
+    }
+
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class);
+    }
+
+    public function employees(): HasMany
+    {
+        return $this->hasMany(User::class, 'employer_id');
     }
 }

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('dashboard', App\Http\Controllers\API\DashboardController::class);
     Route::put('profile', [App\Http\Controllers\API\ProfileController::class, 'update']);
     Route::get('profile', [App\Http\Controllers\API\ProfileController::class, 'show']);
@@ -46,7 +46,19 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('roles', [App\Http\Controllers\API\RoleController::class, 'destroy']);
 
     Route::apiResource('permissions', App\Http\Controllers\API\PermissionController::class)->only(['index', 'show', 'update']);
-    Route::get('permissions-tree', [App\Http\Controllers\API\PermissionController::class, 'permissionsToTree']);
 
     Route::get('enums', [App\Http\Controllers\API\EnumController::class, 'index']);
+});
+
+Route::prefix('public')->group(function () {
+    Route::get('signatures', [App\Http\Controllers\API\SignatureController::class, 'publicIndex']);
+    Route::get('due-days', [App\Http\Controllers\API\DueDayController::class, 'publicIndex']);
+    Route::get('payment-methods', [App\Http\Controllers\API\PaymentMethodController::class, 'publicIndex']);
+    Route::get('measuement-units', [App\Http\Controllers\API\MeasurementUnitController::class, 'publicIndex']);
+    Route::get('cities', [App\Http\Controllers\API\CityController::class, 'publicIndex']);
+
+    Route::middleware('auth')->group(function () {
+        Route::get('roles', [App\Http\Controllers\API\RoleController::class, 'publicIndex']);
+        Route::get('permissions-tree', [App\Http\Controllers\API\PermissionController::class, 'permissionsToTree']);
+    });
 });

@@ -4,7 +4,7 @@ namespace App\Traits;
 
 trait EnumMethods
 {
-    public static function all()
+    public static function all(): array
     {
         $enums = [];
         foreach (self::cases() as $enum) {

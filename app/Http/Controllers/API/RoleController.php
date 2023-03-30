@@ -22,9 +22,15 @@ class RoleController extends BaseController
         $this->middleware('permission:roles_delete', ['only' => ['destroy']]);
     }
 
+    public function publicIndex(Request $request): JsonResponse
+    {
+        return $this->index($request);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = Role::query()
+            ->tenantQuery()
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->search . '%')
                     ->orWhere('description', 'like', '%' . $request->search . '%');
@@ -89,7 +95,9 @@ class RoleController extends BaseController
 
     public function update(Request $request, $id): JsonResponse
     {
-        $item = Role::query()->findOrFail($id);
+        $item = Role::query()
+            ->tenantQuery()
+            ->findOrFail($id);
 
         $validator = Validator::make(
             $request->all(),
@@ -148,6 +156,7 @@ class RoleController extends BaseController
             DB::beginTransaction();
 
             $items = Role::query()
+                ->tenantQuery()
                 ->with('permissions', 'users')
                 ->whereIn('id', $request->items)
                 ->get();
@@ -185,7 +194,7 @@ class RoleController extends BaseController
     private function rules(Request $request, $primaryId = null, $changeMessages = false)
     {
         $rules = [
-            'name' => ['required', 'string', 'max:125', Rule::unique('roles')->ignore($primaryId)],
+            'name' => ['required', 'string', 'max:125'],
             'description' => ['required', 'string', 'max:125'],
             'type' => ['required', 'integer', new Enum(RoleType::class)],
             'permissions_ids' => ['array', Rule::requiredIf(fn () => $request->isMethod('post'))],

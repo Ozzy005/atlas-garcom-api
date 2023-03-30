@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\IsTenant;
 use App\Exceptions\HttpException;
 use App\Http\Requests\PersonRequest;
 use App\Models\Person;
@@ -68,10 +69,12 @@ class TenantController extends BaseController
                 ->updateOrCreate(['nif' => $inputs['nif']], $inputs);
 
             $inputs['person_id'] = $person->id;
-            Tenant::query()->create($inputs);
+            $tenant = Tenant::query()->create($inputs);
 
             $inputs['name'] = $person->full_name;
             $inputs['password'] = Hash::make($inputs['nif']);
+            $inputs['tenant_id'] = $tenant->id;
+            $inputs['is_tenant'] = IsTenant::YES;
             $user = User::query()->create($inputs);
 
             $signature = Signature::query()
@@ -132,7 +135,7 @@ class TenantController extends BaseController
                 ->with('modules')
                 ->findOrFail($inputs['signature_id']);
 
-            $item->person->user->syncRoles($signature->modules->map(fn ($item) => $item->name));
+            $item->user->syncRoles($signature->modules->map(fn ($item) => $item->name));
 
             DB::commit();
             return $this->sendResponse([], 'Registro editado com sucesso!');
@@ -176,7 +179,8 @@ class TenantController extends BaseController
             $model = null;
             foreach ($items as $item) {
                 $model = $item;
-                $item->person->user->delete();
+                $item->user->delete();
+                $item->employees->delete();
                 $item->delete();
             }
 

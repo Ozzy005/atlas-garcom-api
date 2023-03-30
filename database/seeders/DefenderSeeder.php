@@ -51,12 +51,14 @@ class DefenderSeeder extends Seeder
 
     private function createRoles()
     {
-        $admin = Role::query()
-            ->updateOrCreate(
-                ['name' => 'administrator'],
-                ['description' => 'Administrador']
-            );
+        Role::withoutEvents(function () {
+            $admin = Role::query()
+                ->updateOrCreate(
+                    ['name' => 'administrator'],
+                    ['description' => 'Administrador']
+                );
 
-        $admin->permissions()->sync(Permission::query()->get()->toFlatTree());
+            $admin->permissions()->sync(Permission::query()->get()->toFlatTree());
+        });
     }
 }

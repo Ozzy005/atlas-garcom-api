@@ -21,6 +21,11 @@ class DueDayController extends BaseController
         $this->middleware('permission:due-days_delete', ['only' => ['destroy']]);
     }
 
+    public function publicIndex(Request $request): JsonResponse
+    {
+        return $this->index($request);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = DueDay::query()
