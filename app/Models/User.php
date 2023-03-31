@@ -88,25 +88,25 @@ class User extends Authenticatable
         $user = User::query()
             ->find(auth()->id());
 
-        $query->where(function ($query) use ($user) {
-            $query->when($user->is_admin->yes(), function ($query) {
+        $query->where(function (Builder $query) use ($user) {
+            $query->when($user->is_admin->yes(), function (Builder $query) {
                 $query->whereNull('employer_id');
             })
-                ->when($user->is_provider_employee, function ($query) use ($user) {
+                ->when($user->is_provider_employee, function (Builder $query) use ($user) {
                     $query->whereNot('users.id', $user->id)
                         ->where('is_admin', IsAdmin::NOT)
                         ->whereNull('employer_id');
                 })
-                ->when($user->is_tenant->yes(), function ($query) use ($user) {
+                ->when($user->is_tenant->yes(), function (Builder $query) use ($user) {
                     $user->load('tenant');
                     $query->whereNot('users.id', $user->id)
                         ->where('is_admin', IsAdmin::NOT)
-                        ->where(function ($query) use ($user) {
+                        ->where(function (Builder $query) use ($user) {
                             $query->where('tenant_id', $user->tenant->id)
                                 ->orWhere('employer_id', $user->tenant->id);
                         });
                 })
-                ->when($user->is_tenant_employee, function ($query) use ($user) {
+                ->when($user->is_tenant_employee, function (Builder $query) use ($user) {
                     $user->load('employer');
                     $query->whereNot('users.id', $user->id)
                         ->where('is_admin', IsAdmin::NOT)

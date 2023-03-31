@@ -3,6 +3,7 @@
 namespace App\Rules;
 
 use Illuminate\Contracts\Validation\InvokableRule;
+use Illuminate\Database\Eloquent\Builder;
 
 class modelPersonRelationship implements InvokableRule
 {
@@ -27,9 +28,9 @@ class modelPersonRelationship implements InvokableRule
     public function __invoke($attribute, $value, $fail)
     {
         $model = $this->model::query()
-            ->whereHas('person', function ($query) use ($attribute, $value) {
+            ->whereHas('person', function (Builder $query) use ($attribute, $value) {
                 $query->where($attribute, $value)
-                    ->when(!empty($this->ignore), fn ($query) => $query->where('id', '!=', $this->ignore));
+                    ->when(!empty($this->ignore), fn (Builder $query) => $query->where('id', '!=', $this->ignore));
             })
             ->first();
 

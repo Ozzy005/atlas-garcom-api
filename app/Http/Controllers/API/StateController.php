@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\State;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -16,13 +17,13 @@ class StateController extends BaseController
     public function index(Request $request): JsonResponse
     {
         $query = State::query()
-            ->when($request->filled('search'), function ($query) use ($request) {
+            ->when($request->filled('search'), function (Builder $query) use ($request) {
                 $query->where('title', 'like', '%' . $request->search . '%')
                     ->orWhere('letter', 'like', '%' . $request->search . '%');
             })
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
-                fn ($query) => $query->orderBy(
+                fn (Builder $query) => $query->orderBy(
                     $request->sortBy,
                     filter_var($request->descending, FILTER_VALIDATE_BOOLEAN) ? 'desc' : 'asc'
                 )

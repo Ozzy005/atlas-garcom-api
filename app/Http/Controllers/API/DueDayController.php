@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Exceptions\HttpException;
 use App\Models\DueDay;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,14 +30,14 @@ class DueDayController extends BaseController
     public function index(Request $request): JsonResponse
     {
         $query = DueDay::query()
-            ->when($request->filled('search'), function ($query) use ($request) {
+            ->when($request->filled('search'), function (Builder $query) use ($request) {
                 $query->where('day', 'like', '%' . $request->search . '%')
                     ->orWhere('description', 'like', '%' . $request->search . '%');
             })
-            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->status))
+            ->when($request->filled('status'), fn (Builder $query) => $query->where('status', $request->status))
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
-                fn ($query) => $query->orderBy(
+                fn (Builder $query) => $query->orderBy(
                     $request->sortBy,
                     filter_var($request->descending, FILTER_VALIDATE_BOOLEAN) ? 'desc' : 'asc'
                 )

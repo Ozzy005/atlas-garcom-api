@@ -8,6 +8,7 @@ use App\Http\Requests\PersonRequest;
 use App\Models\Person;
 use App\Models\User;
 use App\Rules\modelPersonRelationship;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,14 +33,14 @@ class UserController extends BaseController
         $query = User::query()
             ->personQuery()
             ->tenantQuery()
-            ->when($request->filled('search'), function ($query) use ($request) {
+            ->when($request->filled('search'), function (Builder $query) use ($request) {
                 $query->where('full_name', 'like', '%' . $request->search . '%')
                     ->orWhere('nif', 'like', '%' . removeMask($request->search) . '%')
                     ->orWhere('people.email', 'like', '%' . $request->search . '%');
             })
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
-                fn ($query) => $query->orderBy(
+                fn (Builder $query) => $query->orderBy(
                     in_array($request->sortBy, ['email']) ? "people.$request->sortBy" : $request->sortBy,
                     filter_var($request->descending, FILTER_VALIDATE_BOOLEAN) ? 'desc' : 'asc'
                 )
@@ -99,7 +100,7 @@ class UserController extends BaseController
         $item = User::query()
             ->personQuery()
             ->tenantQuery()
-            ->when($request->filled('with'), fn ($query) => $query->with($request->with))
+            ->when($request->filled('with'), fn (Builder $query) => $query->with($request->with))
             ->findOrFail($id);
 
         return $this->sendResponse($item);

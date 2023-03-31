@@ -32,15 +32,15 @@ class Role extends \Spatie\Permission\Models\Role
         $user = User::query()
             ->find(auth()->id());
 
-        $query->where(function ($query) use ($user) {
-            $query->when($user->is_admin->yes() || $user->is_provider_employee, function ($query) {
+        $query->where(function (Builder $query) use ($user) {
+            $query->when($user->is_admin->yes() || $user->is_provider_employee, function (Builder $query) {
                 $query->whereNull('tenant_id');
             })
-                ->when($user->is_tenant->yes(), function ($query) use ($user) {
+                ->when($user->is_tenant->yes(), function (Builder $query) use ($user) {
                     $user->load('tenant');
                     $query->where('tenant_id', $user->tenant->id);
                 })
-                ->when($user->is_tenant_employee, function ($query) use ($user) {
+                ->when($user->is_tenant_employee, function (Builder $query) use ($user) {
                     $user->load('employer');
                     $query->where('tenant_id', $user->employer->id);
                 });

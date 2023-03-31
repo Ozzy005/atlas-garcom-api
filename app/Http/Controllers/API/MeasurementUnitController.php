@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Exceptions\HttpException;
 use App\Models\MeasurementUnit;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,13 +30,13 @@ class MeasurementUnitController extends BaseController
     public function index(Request $request): JsonResponse
     {
         $query = MeasurementUnit::query()
-            ->when($request->filled('search'), function ($query) use ($request) {
+            ->when($request->filled('search'), function (Builder $query) use ($request) {
                 $query->where('name', 'like', '%' . $request->search . '%')
                     ->orWhere('initials', 'like', '%' . $request->search . '%');
             })
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
-                fn ($query) => $query->orderBy(
+                fn (Builder $query) => $query->orderBy(
                     $request->sortBy,
                     filter_var($request->descending, FILTER_VALIDATE_BOOLEAN) ? 'desc' : 'asc'
                 )

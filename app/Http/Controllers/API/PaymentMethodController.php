@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Exceptions\HttpException;
 use App\Models\PaymentMethod;
-use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,13 +30,13 @@ class PaymentMethodController extends BaseController
     public function index(Request $request): JsonResponse
     {
         $query = PaymentMethod::query()
-            ->when($request->filled('search'), function ($query) use ($request) {
+            ->when($request->filled('search'), function (Builder $query) use ($request) {
                 $query->where('code', 'like', '%' . $request->search . '%')
                     ->orWhere('name', 'like', '%' . $request->search . '%');
             })
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
-                fn ($query) => $query->orderBy(
+                fn (Builder $query) => $query->orderBy(
                     $request->sortBy,
                     filter_var($request->descending, FILTER_VALIDATE_BOOLEAN) ? 'desc' : 'asc'
                 )

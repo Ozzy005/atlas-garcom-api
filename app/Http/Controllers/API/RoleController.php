@@ -5,6 +5,9 @@ namespace App\Http\Controllers\API;
 use App\Enums\RoleType;
 use App\Exceptions\HttpException;
 use App\Models\Role;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,14 +34,14 @@ class RoleController extends BaseController
     {
         $query = Role::query()
             ->tenantQuery()
-            ->when($request->filled('search'), function ($query) use ($request) {
+            ->when($request->filled('search'), function (Builder $query) use ($request) {
                 $query->where('name', 'like', '%' . $request->search . '%')
                     ->orWhere('description', 'like', '%' . $request->search . '%');
             })
-            ->when($request->filled('type'), fn ($query) => $query->where('type', $request->type))
+            ->when($request->filled('type'), fn (Builder $query) => $query->where('type', $request->type))
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
-                fn ($query) => $query->orderBy(
+                fn (Builder $query) => $query->orderBy(
                     $request->sortBy,
                     filter_var($request->descending, FILTER_VALIDATE_BOOLEAN) ? 'desc' : 'asc'
                 )
@@ -71,6 +74,7 @@ class RoleController extends BaseController
             return $this->sendResponse([], 'Registro criado com sucesso!', 201);
         } catch (\Throwable $th) {
             $msg = 'Erro interno do servidor!';
+            $msg = $th->getMessage();
             $code = 500;
             $errors = [];
 
@@ -87,7 +91,7 @@ class RoleController extends BaseController
     public function show(Request $request, $id): JsonResponse
     {
         $item = Role::query()
-            ->when($request->filled('with'), fn ($query) => $query->with($request->with))
+            ->when($request->filled('with'), fn (Builder $query) => $query->with($request->with))
             ->findOrFail($id);
 
         return $this->sendResponse($item);
@@ -194,7 +198,27 @@ class RoleController extends BaseController
     private function rules(Request $request, $primaryId = null, $changeMessages = false)
     {
         $rules = [
-            'name' => ['required', 'string', 'max:125'],
+            'name' => [
+                'required', 'string', 'max:125',
+                Rule::unique('roles')
+                    ->where(function (QueryBuilder $query) {
+                        $user = User::query()
+                            ->find(auth()->id());
+
+                        $tenantId = null;
+
+                        if ($user->is_tenant->yes()) {
+                            $user->load('tenant');
+                            $tenantId = $user->tenant->id;
+                        } else if ($user->is_tenant_employee) {
+                            $user->load('employer');
+                            $tenantId = $user->employer->id;
+                        }
+
+                        return $query->where('tenant_id', $tenantId);
+                    })
+                    ->ignore($primaryId)
+            ],
             'description' => ['required', 'string', 'max:125'],
             'type' => ['required', 'integer', new Enum(RoleType::class)],
             'permissions_ids' => ['array', Rule::requiredIf(fn () => $request->isMethod('post'))],

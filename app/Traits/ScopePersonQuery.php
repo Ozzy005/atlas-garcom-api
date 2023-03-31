@@ -2,17 +2,12 @@
 
 namespace App\Traits;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 trait ScopePersonQuery
 {
-    /**
-     * Scope a query to include people information.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopePersonQuery($query)
+    public function scopePersonQuery(Builder $query): Builder
     {
         return $query->select(
             "{$this->getTable()}.*",

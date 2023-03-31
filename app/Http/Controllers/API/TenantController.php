@@ -10,6 +10,7 @@ use App\Models\Signature;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Rules\modelPersonRelationship;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,14 +32,14 @@ class TenantController extends BaseController
     public function index(Request $request): JsonResponse
     {
         $query = Tenant::personQuery()
-            ->when($request->filled('search'), function ($query) use ($request) {
+            ->when($request->filled('search'), function (Builder $query) use ($request) {
                 $query->where('full_name', 'like', '%' . $request->search . '%')
                     ->orWhere('nif', 'like', '%' . removeMask($request->search) . '%')
                     ->orWhere('people.email', 'like', '%' . $request->search . '%');
             })
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
-                fn ($query) => $query->orderBy(
+                fn (Builder $query) => $query->orderBy(
                     in_array($request->sortBy, ['email']) ? "people.$request->sortBy" : $request->sortBy,
                     filter_var($request->descending, FILTER_VALIDATE_BOOLEAN) ? 'desc' : 'asc'
                 )
@@ -103,7 +104,7 @@ class TenantController extends BaseController
     public function show(Request $request, $id): JsonResponse
     {
         $item = Tenant::personQuery()
-            ->when($request->filled('with'), fn ($query) => $query->with($request->with))
+            ->when($request->filled('with'), fn (Builder $query) => $query->with($request->with))
             ->findOrFail($id);
 
         return $this->sendResponse($item);
