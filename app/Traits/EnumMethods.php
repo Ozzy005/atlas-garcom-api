@@ -4,15 +4,22 @@ namespace App\Traits;
 
 trait EnumMethods
 {
-    public static function all(): array
+    public static function all(array $types = []): array
     {
         $enums = [];
         foreach (self::cases() as $enum) {
-            $enums[] = [
+            $arr = [
                 'id' => $enum->value,
                 'name' => $enum->name(),
                 'color' => $enum->color()
             ];
+
+            if (!empty($types) && in_array($enum, $types)) {
+                $enums[] = $arr;
+                break;
+            }
+
+            $enums[] = $arr;
         }
 
         return $enums;
