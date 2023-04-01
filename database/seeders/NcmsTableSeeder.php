@@ -7,12 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class NcmsTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
+    public function run(): void
     {
         $json = file_get_contents(database_path('data/tabela_ncm_20230305.json'));
         $obj = json_decode($json);

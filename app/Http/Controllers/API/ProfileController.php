@@ -58,7 +58,7 @@ class ProfileController extends BaseController
         }
     }
 
-    private function rules(Request $request, $primaryId = null, $changeMessages = false)
+    private function rules(Request $request, int | null $primaryId = null, bool $changeMessages = false)
     {
         $rules = [
             'name' => ['required', 'string', 'max:60'],

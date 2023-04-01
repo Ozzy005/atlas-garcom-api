@@ -5,9 +5,13 @@ namespace App\Rules;
 use Illuminate\Contracts\Validation\InvokableRule;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @property \Illuminate\Database\Eloquent\Model $model
+ * @property int|null $ignore
+ */
+
 class modelPersonRelationship implements InvokableRule
 {
-    /** @var \Illuminate\Database\Eloquent\Model $model */
     private readonly string $model;
     private readonly int | null $ignore;
 

@@ -2,11 +2,24 @@
 
 namespace App\Models;
 
-use App\Enums\RoleType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+/**
+ * @property integer $id
+ * @property string $name
+ * @property string $description
+ * @property integer $tenant_id
+ * @property \App\Enums\RoleType $type
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ *
+ * @property \App\Models\Tenant $tenant
+ * @property \Illuminate\Database\Eloquent\Collection $permissions
+ * @property \Illuminate\Support\Collection  $permissions_ids
+ */
 
 class Role extends \Spatie\Permission\Models\Role
 {
@@ -18,7 +31,7 @@ class Role extends \Spatie\Permission\Models\Role
         'description' => 'string',
         'guard_name' => 'string',
         'tenant_id' => 'integer',
-        'type' => RoleType::class,
+        'type' => \App\Enums\RoleType::class,
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
@@ -27,8 +40,21 @@ class Role extends \Spatie\Permission\Models\Role
         'permissions_ids'
     ];
 
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
+    }
+
+    public function permissionsIds(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->relationLoaded('permissions') ? $this->permissions->pluck('id') : []
+        );
+    }
+
     public function scopeTenantQuery(Builder $query): void
     {
+        /** @var \App\Models\User $user */
         $user = User::query()
             ->find(auth()->id());
 
@@ -45,17 +71,5 @@ class Role extends \Spatie\Permission\Models\Role
                     $query->where('tenant_id', $user->employer->id);
                 });
         });
-    }
-
-    public function permissionsIds(): Attribute
-    {
-        return new Attribute(
-            get: fn () => $this->relationLoaded('permissions') ? $this->permissions->pluck('id') : []
-        );
-    }
-
-    public function tenant(): BelongsTo
-    {
-        return $this->belongsTo(Tenant::class);
     }
 }

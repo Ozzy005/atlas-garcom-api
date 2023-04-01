@@ -5,6 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Kalnoy\Nestedset\NodeTrait;
 
+/**
+ * @property integer $id
+ * @property string $name
+ * @property string $description
+ * @property string $guard_name
+ * @property integer $_lft
+ * @property integer $_rgt
+ * @property integer $parent_id
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
+
 class Permission extends \Spatie\Permission\Models\Permission
 {
     use HasFactory, NodeTrait;
@@ -14,11 +26,11 @@ class Permission extends \Spatie\Permission\Models\Permission
         'name' => 'string',
         'description' => 'string',
         'guard_name' => 'string',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
         '_lft' => 'integer',
         '_rgt' => 'integer',
-        'parent_id' => 'integer'
+        'parent_id' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     const permissions = [

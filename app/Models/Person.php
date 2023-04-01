@@ -6,6 +6,28 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property integer $id
+ * @property string $nif
+ * @property string $full_name
+ * @property string $name
+ * @property string $state_registration
+ * @property string $city_registration
+ * @property \Illuminate\Support\Carbon $birthdate
+ * @property string $email
+ * @property string $phone
+ * @property integer $city_id
+ * @property string $zip_code
+ * @property string $address
+ * @property string $district
+ * @property string $number
+ * @property string $complement
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ *
+ * @property \App\Models\City $city
+ */
+
 class Person extends Model
 {
     use HasFactory;
@@ -34,7 +56,7 @@ class Person extends Model
         'name' => 'string',
         'state_registration' => 'string',
         'city_registration' => 'string',
-        'birthdate' => 'string',
+        'birthdate' => 'datetime',
         'email' => 'string',
         'phone' => 'string',
         'city_id' => 'integer',

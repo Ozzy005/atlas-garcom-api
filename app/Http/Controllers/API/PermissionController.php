@@ -60,20 +60,20 @@ class PermissionController extends BaseController
         return $this->sendResponse($permissions);
     }
 
-    public function show($id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         $item = Permission::query()->findOrFail($id);
 
         return $this->sendResponse($item);
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request, int $id): JsonResponse
     {
         $item = Permission::query()->findOrFail($id);
 
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request, $item)
+            $this->rules($request, $item->id)
         );
 
         try {
@@ -102,7 +102,7 @@ class PermissionController extends BaseController
         }
     }
 
-    private function rules(Request $request, $primaryId = null, $changeMessages = false)
+    private function rules(Request $request, int | null $primaryId = null, bool $changeMessages = false)
     {
         $rules = [
             'description' => ['required', 'string', 'max:125']

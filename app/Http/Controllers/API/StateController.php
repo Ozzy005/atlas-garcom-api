@@ -34,7 +34,7 @@ class StateController extends BaseController
         return $this->sendResponse($data);
     }
 
-    public function show($id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         $item = State::query()->findOrFail($id);
 

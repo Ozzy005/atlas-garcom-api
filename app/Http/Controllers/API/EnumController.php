@@ -6,10 +6,11 @@ use App\Enums\Recurrence;
 use App\Enums\RoleType;
 use App\Enums\Status;
 use App\Enums\TenantStatus;
+use Illuminate\Http\JsonResponse;
 
 class EnumController extends BaseController
 {
-    public function index()
+    public function index(): JsonResponse
     {
         $enums = [];
 

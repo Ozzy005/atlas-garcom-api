@@ -7,13 +7,14 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Rules\CurrentPasswordCheckRule;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
 class ChangePasswordController extends BaseController
 {
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): JsonResponse
     {
         $validator = Validator::make(
             $request->all(),

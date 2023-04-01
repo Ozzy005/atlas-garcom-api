@@ -2,9 +2,17 @@
 
 namespace App\Models;
 
-use App\Enums\Status;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
+/**
+ * @property integer $id
+ * @property string $name
+ * @property string $initials
+ * @property \App\Enums\Status $status
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 
 class MeasurementUnit extends Model
 {
@@ -20,7 +28,7 @@ class MeasurementUnit extends Model
         'id' => 'integer',
         'name' => 'string',
         'initials' => 'string',
-        'status' => Status::class,
+        'status' => \App\Enums\Status::class,
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];

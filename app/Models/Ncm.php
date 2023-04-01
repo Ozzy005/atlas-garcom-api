@@ -5,6 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property integer $id
+ * @property string $code
+ * @property string $description
+ * @property \Illuminate\Support\Carbon $date_start
+ * @property \Illuminate\Support\Carbon $date_end
+ * @property string $ato_type
+ * @property string $ato_number
+ * @property string $ato_year
+ */
+
 class Ncm extends Model
 {
     use HasFactory;

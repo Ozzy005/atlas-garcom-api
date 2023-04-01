@@ -8,12 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class SignaturesTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
+    public function run(): void
     {
         try {
             $messages = [];

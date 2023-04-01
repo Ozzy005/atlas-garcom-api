@@ -81,7 +81,7 @@ class MeasurementUnitController extends BaseController
         }
     }
 
-    public function show($id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         $item = MeasurementUnit::query()
             ->findOrFail($id);
@@ -89,7 +89,7 @@ class MeasurementUnitController extends BaseController
         return $this->sendResponse($item);
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request, int $id): JsonResponse
     {
         $item = MeasurementUnit::query()
             ->findOrFail($id);
@@ -171,7 +171,7 @@ class MeasurementUnitController extends BaseController
         }
     }
 
-    private function rules(Request $request, $primaryId = null, $changeMessages = false)
+    private function rules(Request $request, int | null $primaryId = null, bool $changeMessages = false)
     {
         $rules = [
             'name' => ['required', 'string', 'max:30'],

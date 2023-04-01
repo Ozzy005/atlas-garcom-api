@@ -5,6 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property integer $id
+ * @property integer $day
+ * @property string $description
+ * @property \App\Enums\Status $status
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
+
 class DueDay extends Model
 {
     use HasFactory;

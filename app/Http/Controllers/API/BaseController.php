@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 
 class BaseController extends Controller
 {
-    public function sendResponse($data, $message = '', $code = 200): \Illuminate\Http\JsonResponse
+    public function sendResponse(mixed $data, string $message = '', int $code = 200): \Illuminate\Http\JsonResponse
     {
         $response = [
             'message' => $message,
@@ -16,7 +16,7 @@ class BaseController extends Controller
         return response()->json($response, $code);
     }
 
-    public function sendError($error, $errorMessages = [], $code = 500): \Illuminate\Http\JsonResponse
+    public function sendError(string $error, mixed $errorMessages = [], int $code = 500): \Illuminate\Http\JsonResponse
     {
         $response = [
             'message' => $error,

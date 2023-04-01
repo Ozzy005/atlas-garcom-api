@@ -22,7 +22,10 @@ class CityController extends BaseController
     public function index(Request $request): JsonResponse
     {
         $query = City::stateQuery()
-            ->when($request->filled('search'), fn (Builder $query) =>  $query->where('cities.title', 'like', '%' . $request->search . '%'))
+            ->when(
+                $request->filled('search'),
+                fn (Builder $query) =>  $query->where('cities.title', 'like', '%' . $request->search . '%')
+            )
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
                 fn (Builder $query) => $query->orderBy(
@@ -36,7 +39,7 @@ class CityController extends BaseController
         return $this->sendResponse($data);
     }
 
-    public function show($id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         $item = City::stateQuery()->findOrFail($id);
 

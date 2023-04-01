@@ -34,7 +34,7 @@ class NcmController extends BaseController
         return $this->sendResponse($data);
     }
 
-    public function show($id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         $item = Ncm::query()->findOrFail($id);
 

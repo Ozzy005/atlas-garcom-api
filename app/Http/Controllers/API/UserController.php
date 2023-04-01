@@ -95,7 +95,7 @@ class UserController extends BaseController
         }
     }
 
-    public function show(Request $request, $id): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
         $item = User::query()
             ->personQuery()
@@ -106,7 +106,7 @@ class UserController extends BaseController
         return $this->sendResponse($item);
     }
 
-    public function update(PersonRequest $request, $id): JsonResponse
+    public function update(PersonRequest $request, int $id): JsonResponse
     {
         $item = User::query()
             ->tenantQuery()
@@ -206,7 +206,7 @@ class UserController extends BaseController
         }
     }
 
-    private function rules(Request $request, $primaryId = null, $changeMessages = false)
+    private function rules(Request $request, int | null $primaryId = null, bool $changeMessages = false)
     {
         $rules = [
             'nif' => [new modelPersonRelationship(User::class, $primaryId)],

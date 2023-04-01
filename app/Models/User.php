@@ -2,12 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use App\Enums\IsAdmin;
-use App\Enums\IsEmployee;
-use App\Enums\IsTenant;
-use App\Enums\Status;
 use App\Traits\ScopePersonQuery;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -17,24 +12,31 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Support\Carbon;
 
 /**
  * @property integer $id
  * @property integer $person_id
  * @property string $name
  * @property string $email
- * @property Carbon $email_verified_at
+ * @property \Illuminate\Support\Carbon $email_verified_at
  * @property string $password
  * @property string $remember_token
  * @property integer $employer_id
  * @property integer $tenant_id
- * @property IsTenant $is_tenant
- * @property isEmployee $is_employee
- * @property IsAdmin $is_admin
- * @property Status $status
- * @property Carbon $created_at
- * @property Carbon $updated_at
+ * @property \App\Enums\IsTenant $is_tenant
+ * @property \App\Enums\isEmployee $is_employee
+ * @property \App\Enums\IsAdmin $is_admin
+ * @property \App\Enums\Status $status
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ *
+ * @property \App\Models\Person $person
+ * @property \App\Models\Tenant $employer
+ * @property \App\Models\Tenant $tenant
+ * @property \Illuminate\Database\Eloquent\Collection $roles
+ * @property \Illuminate\Support\Collection $roles_ids
+ * @property bool $is_tenant_employee
+ * @property bool $is_provider_employee
  */
 
 class User extends Authenticatable
@@ -69,10 +71,10 @@ class User extends Authenticatable
         'remember_token' => 'string',
         'employer_id' => 'integer',
         'tenant_id' => 'integer',
-        'is_tenant' => IsTenant::class,
-        'is_employee' => IsEmployee::class,
-        'is_admin' => IsAdmin::class,
-        'status' => Status::class,
+        'is_tenant' => \App\Enums\IsTenant::class,
+        'is_employee' => \App\Enums\IsEmployee::class,
+        'is_admin' => \App\Enums\IsAdmin::class,
+        'status' => \App\Enums\Status::class,
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
@@ -83,8 +85,45 @@ class User extends Authenticatable
         'is_provider_employee'
     ];
 
+    public function person(): BelongsTo
+    {
+        return $this->belongsTo(Person::class);
+    }
+
+    public function employer(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class, 'employer_id');
+    }
+
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
+    }
+
+    public function rolesIds(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->relationLoaded('roles') ? $this->roles->pluck('id') : []
+        );
+    }
+
+    public function isTenantEmployee(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->employer_id && $this->is_employee->yes()
+        );
+    }
+
+    public function isProviderEmployee(): Attribute
+    {
+        return new Attribute(
+            get: fn () => !$this->employer_id && $this->is_employee->yes()
+        );
+    }
+
     public function scopeTenantQuery(Builder $query): void
     {
+        /** @var \App\Models\User $user */
         $user = User::query()
             ->find(auth()->id());
 
@@ -114,41 +153,5 @@ class User extends Authenticatable
                         ->where('employer_id', $user->employer->id);
                 });
         });
-    }
-
-    public function rolesIds(): Attribute
-    {
-        return new Attribute(
-            get: fn () => $this->relationLoaded('roles') ? $this->roles->pluck('id') : []
-        );
-    }
-
-    public function isTenantEmployee(): Attribute
-    {
-        return new Attribute(
-            get: fn () => $this->employer_id && $this->is_employee->yes()
-        );
-    }
-
-    public function isProviderEmployee(): Attribute
-    {
-        return new Attribute(
-            get: fn () => !$this->employer_id && $this->is_employee->yes()
-        );
-    }
-
-    public function person(): BelongsTo
-    {
-        return $this->belongsTo(Person::class);
-    }
-
-    public function employer(): BelongsTo
-    {
-        return $this->belongsTo(Tenant::class, 'employer_id');
-    }
-
-    public function tenant(): BelongsTo
-    {
-        return $this->belongsTo(Tenant::class);
     }
 }

@@ -90,7 +90,7 @@ class SignatureController extends BaseController
         }
     }
 
-    public function show(Request $request, $id): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
         $item = Signature::query()
             ->when($request->filled('with'), fn (Builder $query) => $query->with($request->with))
@@ -99,7 +99,7 @@ class SignatureController extends BaseController
         return $this->sendResponse($item);
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request, int $id): JsonResponse
     {
         $item = Signature::query()
             ->findOrFail($id);
@@ -189,7 +189,7 @@ class SignatureController extends BaseController
         }
     }
 
-    private function rules(Request $request, $primaryId = null, $changeMessages = false)
+    private function rules(Request $request, int | null $primaryId = null, bool $changeMessages = false)
     {
         $rules = [
             'name' => ['required', 'string', 'max:30'],

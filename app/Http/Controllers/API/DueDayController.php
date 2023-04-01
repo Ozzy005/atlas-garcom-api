@@ -82,7 +82,7 @@ class DueDayController extends BaseController
         }
     }
 
-    public function show($id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         $item = DueDay::query()
             ->findOrFail($id);
@@ -90,7 +90,7 @@ class DueDayController extends BaseController
         return $this->sendResponse($item);
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request, int $id): JsonResponse
     {
         $item = DueDay::query()
             ->findOrFail($id);
@@ -172,7 +172,7 @@ class DueDayController extends BaseController
         }
     }
 
-    private function rules(Request $request, $primaryId = null, $changeMessages = false)
+    private function rules(Request $request, int | null $primaryId = null, bool $changeMessages = false): array
     {
         $rules = [
             'day' => ['required', 'integer', 'min:1', 'max:31'],

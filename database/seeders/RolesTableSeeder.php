@@ -10,12 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class RolesTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
+    public function run(): void
     {
         Role::withoutEvents(function () {
             try {

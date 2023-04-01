@@ -9,6 +9,27 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @property integer $id
+ * @property string $name
+ * @property string $description
+ * @property string $color
+ * @property \App\Enums\Recurrence $recurrence
+ * @property float $price
+ * @property bool $has_discount
+ * @property float $discount
+ * @property float $discounted_price
+ * @property float $total_price
+ * @property \App\Enums\Status $status
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ *
+ * @property \Illuminate\Database\Eloquent\Collection $dueDays
+ * @property \Illuminate\Database\Eloquent\Collection $modules
+ * @property \Illuminate\Support\Collection  $due_days_ids
+ * @property \Illuminate\Support\Collection  $modules_ids
+ */
+
 class Signature extends Model
 {
     use HasFactory;
@@ -52,13 +73,6 @@ class Signature extends Model
         return $this->belongsToMany(DueDay::class, 'due_day_signature');
     }
 
-    public function dueDaysIds(): Attribute
-    {
-        return new Attribute(
-            get: fn () => $this->relationLoaded('dueDays') ? $this->dueDays->pluck('id') : []
-        );
-    }
-
     public function modules(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);
@@ -68,6 +82,13 @@ class Signature extends Model
     {
         return new Attribute(
             get: fn () => $this->relationLoaded('modules') ? $this->modules->pluck('id') : []
+        );
+    }
+
+    public function dueDaysIds(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->relationLoaded('dueDays') ? $this->dueDays->pluck('id') : []
         );
     }
 }

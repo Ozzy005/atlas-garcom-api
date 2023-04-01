@@ -2,13 +2,29 @@
 
 namespace App\Models;
 
-use App\Enums\TenantStatus;
 use App\Traits\ScopePersonQuery;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+
+/**
+ * @property integer $id
+ * @property string $person_id
+ * @property string $signature_id
+ * @property integer $due_day_id
+ * @property \App\Enums\TenantStatus $status
+ * @property integer $population
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ *
+ * @property \App\Models\Person $person
+ * @property \App\Models\Signature $signature
+ * @property \App\Models\DueDay $dueDay
+ * @property \App\Models\User $user
+ * @property \Illuminate\Database\Eloquent\Collection $employees
+ */
 
 class Tenant extends Model
 {
@@ -26,7 +42,7 @@ class Tenant extends Model
         'person_id' => 'integer',
         'signature_id' => 'integer',
         'due_day_id' => 'integer',
-        'status' => TenantStatus::class,
+        'status' => \App\Enums\TenantStatus::class,
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];

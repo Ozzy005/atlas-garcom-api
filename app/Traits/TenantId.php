@@ -8,6 +8,7 @@ trait TenantId
 {
     public function getTenantId(): int | null
     {
+        /** @var \App\Models\User $user */
         $user = User::query()
             ->find(auth()->id());
 
