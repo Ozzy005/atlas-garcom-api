@@ -3,20 +3,14 @@
 namespace App\Observers;
 
 use App\Models\User;
+use App\Traits\TenantId;
 
 class UserObserver
 {
+    use TenantId;
+
     public function creating(User $user): void
     {
-        $userAuthenticated = User::query()
-            ->find(auth()->id());
-
-        if ($userAuthenticated->is_tenant->yes()) {
-            $userAuthenticated->load('tenant');
-            $user->employer_id = $userAuthenticated->tenant->id;
-        } else if ($userAuthenticated->is_tenant_employee) {
-            $userAuthenticated->load('employer');
-            $user->employer_id = $userAuthenticated->employer->id;
-        }
+        $user->employer_id = $this->getTenantId();
     }
 }

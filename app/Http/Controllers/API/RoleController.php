@@ -5,9 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Enums\RoleType;
 use App\Exceptions\HttpException;
 use App\Models\Role;
-use App\Models\User;
+use App\Traits\TenantId;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +16,8 @@ use Illuminate\Validation\Rules\Enum;
 
 class RoleController extends BaseController
 {
+    use TenantId;
+
     public function __construct()
     {
         $this->middleware('permission:roles_create', ['only' => ['create', 'store']]);
@@ -201,22 +202,7 @@ class RoleController extends BaseController
             'name' => [
                 'required', 'string', 'max:125',
                 Rule::unique('roles')
-                    ->where(function (QueryBuilder $query) {
-                        $user = User::query()
-                            ->find(auth()->id());
-
-                        $tenantId = null;
-
-                        if ($user->is_tenant->yes()) {
-                            $user->load('tenant');
-                            $tenantId = $user->tenant->id;
-                        } else if ($user->is_tenant_employee) {
-                            $user->load('employer');
-                            $tenantId = $user->employer->id;
-                        }
-
-                        return $query->where('tenant_id', $tenantId);
-                    })
+                    ->where('tenant_id', $this->getTenantId())
                     ->ignore($primaryId)
             ],
             'description' => ['required', 'string', 'max:125'],
