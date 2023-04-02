@@ -37,6 +37,10 @@ class PermissionsTableSeeder extends Seeder
 
             $loop($data);
 
+            DB::table('permissions')
+                ->whereNotIn('id', Permission::getIds())
+                ->delete();
+
             DB::commit();
 
             foreach ($messages as $message) {

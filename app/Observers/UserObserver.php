@@ -3,11 +3,11 @@
 namespace App\Observers;
 
 use App\Models\User;
-use App\Traits\TenantId;
+use App\Traits\Tenant;
 
 class UserObserver
 {
-    use TenantId;
+    use Tenant;
 
     public function creating(User $user): void
     {

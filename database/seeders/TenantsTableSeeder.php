@@ -20,12 +20,12 @@ class TenantsTableSeeder extends Seeder
                     [
                         'person' => [
                             'nif' => '83643264000190',
-                            'full_name' => 'Noah e Osvaldo Padaria Ltda',
-                            'name' => 'Noah e Osvaldo Padaria',
+                            'full_name' => 'Contratante',
+                            'name' => 'Contratante',
                             'birthdate' => '2015-08-12',
                             'state_registration' => '522.799.920.946',
                             'city_registration' => null,
-                            'email' => 'noah_padaria@hotmail.com',
+                            'email' => 'contratante@atlasgarcom.com',
                             'phone' => '11981278555',
                             'zip_code' => '06412150',
                             'address' => 'Rua Egeu',
@@ -40,9 +40,9 @@ class TenantsTableSeeder extends Seeder
                             'status' => \App\Enums\TenantStatus::ACTIVE
                         ],
                         'user' => [
-                            'name' => 'Noah e Osvaldo Padaria',
-                            'email' => 'noah_padaria@hotmail.com',
-                            'password' => Hash::make('1234567o'),
+                            'name' => 'Contratante',
+                            'email' => 'contratante@atlasgarcom.com',
+                            'password' => Hash::make('atlas1234567o'),
                             'is_tenant' => \App\Enums\IsTenant::YES,
                             'status' => \App\Enums\Status::ACTIVE
                         ]
@@ -70,7 +70,7 @@ class TenantsTableSeeder extends Seeder
                             $value['user'] + ['tenant_id' => $tenant->id]
                         );
 
-                    $user->assignRole(['users', 'roles']);
+                    $user->assignRole(['categories', 'users', 'roles']);
 
                     array_push($messages, "  {$tenant->id} - Tenant {$person->full_name} criado/atualizado.");
                 }

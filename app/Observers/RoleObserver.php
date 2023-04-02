@@ -3,11 +3,11 @@
 namespace App\Observers;
 
 use App\Models\Role;
-use App\Traits\TenantId;
+use App\Traits\Tenant;
 
 class RoleObserver
 {
-    use TenantId;
+    use Tenant;
 
     public function creating(Role $role): void
     {

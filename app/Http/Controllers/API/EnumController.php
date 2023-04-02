@@ -6,12 +6,12 @@ use App\Enums\Recurrence;
 use App\Enums\RoleType;
 use App\Enums\Status;
 use App\Enums\TenantStatus;
-use App\Traits\TenantId;
+use App\Traits\Tenant;
 use Illuminate\Http\JsonResponse;
 
 class EnumController extends BaseController
 {
-    use TenantId;
+    use Tenant;
 
     public function index(): JsonResponse
     {

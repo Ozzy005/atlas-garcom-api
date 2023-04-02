@@ -41,7 +41,7 @@ class Permission extends \Spatie\Permission\Models\Permission
         ],
         [
             'id' => 2,
-            'name' => 'people_view',
+            'name' => 'people_group_view',
             'description' => 'Pessoas',
             'children' => [
                 [
@@ -59,7 +59,7 @@ class Permission extends \Spatie\Permission\Models\Permission
         ],
         [
             'id' => 8,
-            'name' => 'operational_view',
+            'name' => 'operational_group_view',
             'description' => 'Operacional',
             'children' => [
                 [
@@ -75,7 +75,7 @@ class Permission extends \Spatie\Permission\Models\Permission
                 ],
                 [
                     'id' => 14,
-                    'name' => 'due_days_group_view',
+                    'name' => 'due-days_group_view',
                     'description' => 'Dias de Vencimento',
                     'children' => [
                         array('id' => 15, 'name' => 'due-days_create', 'description' => 'Criar'),
@@ -83,99 +83,129 @@ class Permission extends \Spatie\Permission\Models\Permission
                         array('id' => 17, 'name' => 'due-days_edit', 'description' => 'Editar'),
                         array('id' => 18, 'name' => 'due-days_delete', 'description' => 'Deletar')
                     ]
+                ],
+                [
+                    'id' => 19,
+                    'name' => 'categories_group_view',
+                    'description' => 'Categorias',
+                    'children' => [
+                        array('id' => 20, 'name' => 'categories_create', 'description' => 'Criar'),
+                        array('id' => 21, 'name' => 'categories_view', 'description' => 'Visualizar'),
+                        array('id' => 22, 'name' => 'categories_edit', 'description' => 'Editar'),
+                        array('id' => 23, 'name' => 'categories_delete', 'description' => 'Deletar')
+                    ]
                 ]
             ]
         ],
         [
-            'id' => 19,
-            'name' => 'general_view',
+            'id' => 24,
+            'name' => 'general_group_view',
             'description' => 'Geral',
             'children' => [
                 [
-                    'id' => 20,
+                    'id' => 25,
                     'name' => 'payment-methods_group_view',
                     'description' => 'Métodos de Pagamento',
                     'children' => [
-                        array('id' => 21, 'name' => 'payment-methods_create', 'description' => 'Criar'),
-                        array('id' => 22, 'name' => 'payment-methods_view', 'description' => 'Visualizar'),
-                        array('id' => 23, 'name' => 'payment-methods_edit', 'description' => 'Editar'),
-                        array('id' => 24, 'name' => 'payment-methods_delete', 'description' => 'Deletar')
-                    ]
-                ],
-                [
-                    'id' => 25,
-                    'name' => 'measurement-units_group_view',
-                    'description' => 'Unidades de Medida',
-                    'children' => [
-                        array('id' => 26, 'name' => 'measurement-units_create', 'description' => 'Criar'),
-                        array('id' => 27, 'name' => 'measurement-units_view', 'description' => 'Visualizar'),
-                        array('id' => 28, 'name' => 'measurement-units_edit', 'description' => 'Editar'),
-                        array('id' => 29, 'name' => 'measurement-units_delete', 'description' => 'Deletar')
+                        array('id' => 26, 'name' => 'payment-methods_create', 'description' => 'Criar'),
+                        array('id' => 27, 'name' => 'payment-methods_view', 'description' => 'Visualizar'),
+                        array('id' => 28, 'name' => 'payment-methods_edit', 'description' => 'Editar'),
+                        array('id' => 29, 'name' => 'payment-methods_delete', 'description' => 'Deletar')
                     ]
                 ],
                 [
                     'id' => 30,
+                    'name' => 'measurement-units_group_view',
+                    'description' => 'Unidades de Medida',
+                    'children' => [
+                        array('id' => 31, 'name' => 'measurement-units_create', 'description' => 'Criar'),
+                        array('id' => 32, 'name' => 'measurement-units_view', 'description' => 'Visualizar'),
+                        array('id' => 33, 'name' => 'measurement-units_edit', 'description' => 'Editar'),
+                        array('id' => 34, 'name' => 'measurement-units_delete', 'description' => 'Deletar')
+                    ]
+                ],
+                [
+                    'id' => 35,
                     'name' => 'ncms_group_view',
                     'description' => 'NCMS',
                     'children' => [
-                        array('id' => 31, 'name' => 'ncms_view', 'description' => 'Visualizar')
+                        array('id' => 36, 'name' => 'ncms_view', 'description' => 'Visualizar')
                     ]
                 ],
                 [
-                    'id' => 32,
+                    'id' => 37,
                     'name' => 'states_group_view',
                     'description' => 'Estados',
                     'children' => [
-                        array('id' => 33, 'name' => 'states_view', 'description' => 'Visualizar')
+                        array('id' => 38, 'name' => 'states_view', 'description' => 'Visualizar')
                     ]
                 ],
                 [
-                    'id' => 34,
+                    'id' => 39,
                     'name' => 'cities_group_view',
                     'description' => 'Cidades',
                     'children' => [
-                        array('id' => 35, 'name' => 'cities_view', 'description' => 'Visualizar')
+                        array('id' => 40, 'name' => 'cities_view', 'description' => 'Visualizar')
                     ]
                 ]
             ]
         ],
         [
-            'id' => 36,
+            'id' => 41,
             'name' => 'management_group_view',
             'description' => 'Gerenciamento',
             'children' => [
                 [
-                    'id' => 37,
+                    'id' => 42,
                     'name' => 'users_group_view',
                     'description' => 'Usuários',
                     'children' => [
-                        array('id' => 38, 'name' => 'users_create', 'description' => 'Criar'),
-                        array('id' => 39, 'name' => 'users_view', 'description' => 'Visualizar'),
-                        array('id' => 40, 'name' => 'users_edit', 'description' => 'Editar'),
-                        array('id' => 41, 'name' => 'users_delete', 'description' => 'Deletar')
-                    ]
-                ],
-                [
-                    'id' => 42,
-                    'name' => 'roles_group_view',
-                    'description' => 'Atribuições/Módulos',
-                    'children' => [
-                        array('id' => 43, 'name' => 'roles_create', 'description' => 'Criar'),
-                        array('id' => 44, 'name' => 'roles_view', 'description' => 'Visualizar'),
-                        array('id' => 45, 'name' => 'roles_edit', 'description' => 'Editar'),
-                        array('id' => 46, 'name' => 'roles_delete', 'description' => 'Deletar')
+                        array('id' => 43, 'name' => 'users_create', 'description' => 'Criar'),
+                        array('id' => 44, 'name' => 'users_view', 'description' => 'Visualizar'),
+                        array('id' => 45, 'name' => 'users_edit', 'description' => 'Editar'),
+                        array('id' => 46, 'name' => 'users_delete', 'description' => 'Deletar')
                     ]
                 ],
                 [
                     'id' => 47,
+                    'name' => 'roles_group_view',
+                    'description' => 'Atribuições/Módulos',
+                    'children' => [
+                        array('id' => 48, 'name' => 'roles_create', 'description' => 'Criar'),
+                        array('id' => 49, 'name' => 'roles_view', 'description' => 'Visualizar'),
+                        array('id' => 50, 'name' => 'roles_edit', 'description' => 'Editar'),
+                        array('id' => 51, 'name' => 'roles_delete', 'description' => 'Deletar')
+                    ]
+                ],
+                [
+                    'id' => 52,
                     'name' => 'permissions_group_view',
                     'description' => 'Permissões',
                     'children' => [
-                        array('id' => 48, 'name' => 'permissions_view', 'description' => 'Visualizar'),
-                        array('id' => 49, 'name' => 'permissions_edit', 'description' => 'Editar')
+                        array('id' => 53, 'name' => 'permissions_view', 'description' => 'Visualizar'),
+                        array('id' => 54, 'name' => 'permissions_edit', 'description' => 'Editar')
                     ]
                 ]
             ]
         ]
     ];
+
+    public static function getIds()
+    {
+        $ids = [];
+        $loop = function ($data) use (&$loop, &$ids) {
+            foreach ($data as $value) {
+                if (array_key_exists('id', $value)) {
+                    array_push($ids, $value['id']);
+                    if (array_key_exists('children', $value)) {
+                        $loop($value['children']);
+                    }
+                }
+            }
+        };
+
+        $loop(self::permissions);
+
+        return $ids;
+    }
 }

@@ -4,7 +4,7 @@ namespace App\Traits;
 
 use App\Models\User;
 
-trait TenantId
+trait Tenant
 {
     public function getTenantId(): int | null
     {
@@ -23,5 +23,14 @@ trait TenantId
         }
 
         return null;
+    }
+
+    public function isTenant(): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = User::query()
+            ->find(auth()->id());
+
+        return ($user->is_tenant->yes() || $user->is_tenant_employee);
     }
 }

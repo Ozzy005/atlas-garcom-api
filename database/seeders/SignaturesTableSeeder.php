@@ -56,7 +56,7 @@ class SignaturesTableSeeder extends Seeder
                     'discounted_price' => 0,
                     'total_price' => 109.99,
                     'due_days_ids' => [2, 4],
-                    'modules_ids' => [2, 3]
+                    'modules_ids' => [2, 3, 4]
                 ],
                 [
                     'id' => 4,
@@ -71,7 +71,7 @@ class SignaturesTableSeeder extends Seeder
                     'discounted_price' => 104.5,
                     'total_price' => 1254,
                     'due_days_ids' => [2, 4],
-                    'modules_ids' => [2, 3]
+                    'modules_ids' => [2, 3, 4]
                 ],
                 [
                     'id' => 5,
@@ -86,7 +86,7 @@ class SignaturesTableSeeder extends Seeder
                     'discounted_price' => 0,
                     'total_price' => 129.99,
                     'due_days_ids' => [1, 2, 3, 4, 5],
-                    'modules_ids' => [2, 3]
+                    'modules_ids' => [2, 3, 4]
                 ],
                 [
                     'id' => 6,
@@ -101,7 +101,7 @@ class SignaturesTableSeeder extends Seeder
                     'discounted_price' => 123.5,
                     'total_price' => 1482,
                     'due_days_ids' => [1, 2, 3, 4, 5],
-                    'modules_ids' => [2, 3]
+                    'modules_ids' => [2, 3, 4]
                 ]
             ];
 

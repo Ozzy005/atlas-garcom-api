@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Enums\RoleType;
 use App\Exceptions\HttpException;
 use App\Models\Role;
-use App\Traits\TenantId;
+use App\Traits\Tenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,7 +16,7 @@ use Illuminate\Validation\Rules\Enum;
 
 class RoleController extends BaseController
 {
-    use TenantId;
+    use Tenant;
 
     public function __construct()
     {
