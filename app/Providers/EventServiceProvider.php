@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Category;
 use App\Models\Role;
 use App\Models\User;
+use App\Observers\CategoryObserver;
 use App\Observers\RoleObserver;
 use App\Observers\UserObserver;
 use Illuminate\Auth\Events\Registered;
@@ -31,7 +33,8 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $observers = [
         User::class => [UserObserver::class],
-        Role::class => [RoleObserver::class]
+        Role::class => [RoleObserver::class],
+        Category::class => [CategoryObserver::class]
     ];
 
     /**

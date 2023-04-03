@@ -2,46 +2,46 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Enums\IsEmployee;
 use App\Exceptions\HttpException;
-use App\Http\Requests\PersonRequest;
-use App\Models\Person;
-use App\Models\User;
-use App\Rules\modelPersonRelationship;
+use App\Models\Category;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules;
 use Illuminate\Validation\Rules\Enum;
 
-class UserController extends BaseController
+class CategoryController extends BaseController
 {
     public function __construct()
     {
-        $this->middleware('permission:users_create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:users_edit', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:users_view', ['only' => ['show', 'index']]);
-        $this->middleware('permission:users_delete', ['only' => ['destroy']]);
+        $this->middleware('check-tenant');
+        $this->middleware('permission:categories_create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:categories_edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:categories_view', ['only' => ['show', 'index']]);
+        $this->middleware('permission:categories_delete', ['only' => ['destroy']]);
+    }
+
+    public function publicIndex(Request $request): JsonResponse
+    {
+        return $this->index($request);
     }
 
     public function index(Request $request): JsonResponse
     {
-        $query = User::query()
-            ->personQuery()
-            ->tenantQuery()
+        $query = Category::query()
             ->when($request->filled('search'), function (Builder $query) use ($request) {
-                $query->where('full_name', 'like', '%' . $request->search . '%')
-                    ->orWhere('nif', 'like', '%' . removeMask($request->search) . '%')
-                    ->orWhere('people.email', 'like', '%' . $request->search . '%');
+                $query->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('description', 'like', '%' . $request->search . '%');
             })
+            ->when($request->filled('status'), fn (Builder $query) => $query->where('status', $request->status))
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
                 fn (Builder $query) => $query->orderBy(
-                    in_array($request->sortBy, ['email']) ? "people.$request->sortBy" : $request->sortBy,
+                    $request->sortBy,
                     filter_var($request->descending, FILTER_VALIDATE_BOOLEAN) ? 'desc' : 'asc'
                 )
             );
@@ -51,11 +51,12 @@ class UserController extends BaseController
         return $this->sendResponse($data);
     }
 
-    public function store(PersonRequest $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request)
+            $this->rules($request),
+            $this->rules($request, null, true)
         );
 
         try {
@@ -67,21 +68,15 @@ class UserController extends BaseController
 
             $inputs = $request->all();
 
-            $person = Person::query()
-                ->updateOrCreate(['nif' => $inputs['nif']], $inputs);
+            $inputs['image'] = Storage::disk('public')->put('categories', $inputs['image']);
 
-            $inputs['person_id'] = $person->id;
-            $inputs['name'] = $person->full_name;
-            $inputs['password'] = Hash::make($inputs['password']);
-            $inputs['is_employee'] = IsEmployee::YES;
-
-            $user = User::query()->create($inputs);
-            $user->roles()->sync($inputs['roles_ids']);
+            Category::query()->create($inputs);
 
             DB::commit();
             return $this->sendResponse([], 'Registro criado com sucesso!', 201);
         } catch (\Throwable $th) {
             $msg = 'Erro interno do servidor!';
+            $msg = $th->getMessage();
             $code = 500;
             $errors = [];
 
@@ -95,54 +90,44 @@ class UserController extends BaseController
         }
     }
 
-    public function show(Request $request, int $id): JsonResponse
+    public function show(int $id): JsonResponse
     {
-        $item = User::query()
-            ->personQuery()
-            ->tenantQuery()
-            ->when($request->filled('with'), fn (Builder $query) => $query->with($request->with))
+        $item = Category::query()
             ->findOrFail($id);
 
         return $this->sendResponse($item);
     }
 
-    public function update(PersonRequest $request, int $id): JsonResponse
+    public function update(Request $request, int $id): JsonResponse
     {
-        ds($request->all());
-
-        $item = User::query()
-            ->tenantQuery()
-            ->with('person')
+        $item = Category::query()
             ->findOrFail($id);
 
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request, $item->person_id)
+            $this->rules($request, $item->id),
+            $this->rules($request, null, true)
         );
 
         try {
             if ($validator->fails()) {
                 throw new HttpException('Erro de validação!', $validator->errors()->toArray(), 422);
             }
-            if (auth()->id() != 1 && $item->id == 1) {
-                throw new HttpException('Não é possível editar o usuário administrador principal!', [], 403);
-            }
 
             DB::beginTransaction();
 
             $inputs = $request->all();
 
-            $item->person->fill($inputs)->save();
-
-            $inputs['name'] = $item->person->full_name;
+            Storage::disk('public')->delete($item->image);
+            $inputs['image'] = Storage::disk('public')->put('categories', $inputs['image']);
 
             $item->fill($inputs)->save();
-            $item->roles()->sync($inputs['roles_ids']);
 
             DB::commit();
             return $this->sendResponse([], 'Registro editado com sucesso!');
         } catch (\Throwable $th) {
             $msg = 'Erro interno do servidor!';
+            $msg = $th->getMessage();
             $code = 500;
             $errors = [];
 
@@ -162,7 +147,7 @@ class UserController extends BaseController
             $request->all(),
             [
                 'items' => ['required', 'array', 'min:1'],
-                'items.*' => ['required', 'integer', Rule::exists('users', 'id')]
+                'items.*' => ['required', 'integer', Rule::exists('categories', 'id')]
             ]
         );
 
@@ -170,23 +155,17 @@ class UserController extends BaseController
             if ($validator->fails()) {
                 throw new HttpException('Erro de validação!', $validator->errors()->toArray(), 422);
             }
-            if (in_array(auth()->id(), $request->items)) {
-                throw new HttpException('Não é possível excluir seu próprio usuário!', [], 403);
-            }
-            if (in_array(1, $request->items)) {
-                throw new HttpException('Não é possível excluir o usuário do administrador!', [], 403);
-            }
 
             DB::beginTransaction();
 
-            $items = User::query()
-                ->tenantQuery()
+            $items = Category::query()
                 ->whereIn('id', $request->items)
                 ->get();
 
             $model = null;
             foreach ($items as $item) {
                 $model = $item;
+                Storage::disk('public')->delete($item->image);
                 $item->delete();
             }
 
@@ -203,23 +182,22 @@ class UserController extends BaseController
                 $code = $th->getCode();
                 $errors = $th->getErrors();
             }
-
             return $this->sendError($msg, $errors, $code);
         }
     }
 
-    private function rules(Request $request, int | null $primaryId = null, bool $changeMessages = false)
+    private function rules(Request $request, int | null $primaryId = null, bool $changeMessages = false): array
     {
         $rules = [
-            'nif' => [new modelPersonRelationship(User::class, $primaryId)],
-            'status' => ['required', 'integer', new Enum(\App\Enums\Status::class)],
-            'email' => [new modelPersonRelationship(User::class, $primaryId)],
-            'password' => ['string', 'confirmed', Rule::requiredIf(fn () => $request->isMethod('post')), Rules\Password::defaults()],
-            'roles_ids' => ['required', 'array'],
-            'roles_ids.*' => ['required', 'integer', Rule::exists('roles', 'id')]
+            'image' => ['required', 'image', 'mimes:jpg,jpeg,png', 'dimensions:ratio=1/1', 'max:1024'],
+            'name' => ['required', 'string', 'max:30'],
+            'description' => ['nullable', 'string', 'max:100'],
+            'status' => ['required', 'integer', new Enum(\App\Enums\Status::class)]
         ];
 
-        $messages = [];
+        $messages = [
+            'image.dimensions' => 'A imagem deve ser quadrada!'
+        ];
 
         return !$changeMessages ? $rules : $messages;
     }
