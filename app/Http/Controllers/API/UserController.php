@@ -108,8 +108,6 @@ class UserController extends BaseController
 
     public function update(PersonRequest $request, int $id): JsonResponse
     {
-        ds($request->all());
-
         $item = User::query()
             ->tenantQuery()
             ->with('person')
