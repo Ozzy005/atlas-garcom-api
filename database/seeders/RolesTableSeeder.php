@@ -17,6 +17,7 @@ class RolesTableSeeder extends Seeder
                 $messages = [];
                 $data = [
                     [
+                        'id' => 1,
                         'name' => 'administrator',
                         'description' => 'Administrador',
                         'type' => \App\Enums\RoleType::ROLE,
@@ -27,6 +28,8 @@ class RolesTableSeeder extends Seeder
                             ['name', 'like', '%operational_%'],
                             ['name', 'like', '%signatures_%'],
                             ['name', 'like', '%due-days_%'],
+                            ['name', 'like', '%categories_%'],
+                            ['name', 'like', '%complements_%'],
                             ['name', 'like', '%general_%'],
                             ['name', 'like', '%payment-methods_%'],
                             ['name', 'like', '%measurement-units_%'],
@@ -40,6 +43,7 @@ class RolesTableSeeder extends Seeder
                         ]
                     ],
                     [
+                        'id' => 2,
                         'name' => 'categories',
                         'description' => 'Categorias',
                         'type' => \App\Enums\RoleType::MODULE,
@@ -48,6 +52,16 @@ class RolesTableSeeder extends Seeder
                         ]
                     ],
                     [
+                        'id' => 3,
+                        'name' => 'complements',
+                        'description' => 'Complementos',
+                        'type' => \App\Enums\RoleType::MODULE,
+                        'permissions' => [
+                            ['name', 'like', '%complements_%']
+                        ]
+                    ],
+                    [
+                        'id' => 4,
                         'name' => 'users',
                         'description' => 'Usuários',
                         'type' => \App\Enums\RoleType::MODULE,
@@ -56,6 +70,7 @@ class RolesTableSeeder extends Seeder
                         ]
                     ],
                     [
+                        'id' => 5,
                         'name' => 'roles',
                         'description' => 'Atribuições',
                         'type' => \App\Enums\RoleType::MODULE,
@@ -80,8 +95,8 @@ class RolesTableSeeder extends Seeder
                         ->get();
 
                     $role = Role::query()
-                        ->updateOrCreate(
-                            ['name' => $value['name']],
+                       ->updateOrCreate(
+                            ['id' => $value['id']],
                             $value
                         );
 

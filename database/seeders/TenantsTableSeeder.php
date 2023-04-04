@@ -35,8 +35,8 @@ class TenantsTableSeeder extends Seeder
                             'city_id' => 5179
                         ],
                         'tenant' => [
-                            'signature_id' => 3,
-                            'due_day_id' => 2,
+                            'signature_id' => 1,
+                            'due_day_id' => 1,
                             'status' => \App\Enums\TenantStatus::ACTIVE
                         ],
                         'user' => [
@@ -70,7 +70,7 @@ class TenantsTableSeeder extends Seeder
                             $value['user'] + ['tenant_id' => $tenant->id]
                         );
 
-                    $user->assignRole(['categories', 'users', 'roles']);
+                    $user->assignRole(['categories', 'complements']);
 
                     array_push($messages, "  {$tenant->id} - Tenant {$person->full_name} criado/atualizado.");
                 }

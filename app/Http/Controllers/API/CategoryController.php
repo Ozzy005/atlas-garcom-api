@@ -68,7 +68,14 @@ class CategoryController extends BaseController
 
             $inputs = $request->all();
 
-            $inputs['image'] = Storage::disk('public')->put('categories', $inputs['image']);
+            if (!empty($request->image)) {
+
+                $extension = explode('/', mime_content_type($request->image))[1];
+                $inputs['image'] = 'categories/' . uniqid() . '.' . $extension;
+                $file = substr($request->image, strpos($request->image, ',') + 1);
+
+                Storage::disk('public')->put($inputs['image'], base64_decode($file));
+            }
 
             Category::query()->create($inputs);
 
@@ -118,8 +125,15 @@ class CategoryController extends BaseController
 
             $inputs = $request->all();
 
-            Storage::disk('public')->delete($item->image);
-            $inputs['image'] = Storage::disk('public')->put('categories', $inputs['image']);
+            if (!empty($request->image)) {
+
+                Storage::disk('public')->delete($item->image);
+                $extension = explode('/', mime_content_type($request->image))[1];
+                $inputs['image'] = 'categories/' . uniqid() . '.' . $extension;
+                $file = substr($request->image, strpos($request->image, ',') + 1);
+
+                Storage::disk('public')->put($inputs['image'], base64_decode($file));
+            }
 
             $item->fill($inputs)->save();
 
@@ -189,7 +203,7 @@ class CategoryController extends BaseController
     private function rules(Request $request, int | null $primaryId = null, bool $changeMessages = false): array
     {
         $rules = [
-            'image' => ['required', 'image', 'mimes:jpg,jpeg,png', 'dimensions:ratio=1/1', 'max:1024'],
+            'image' => ['required', 'base64image', 'base64mimes:jpg,jpeg,png', 'base64dimensions:ratio=1/1', 'base64max:1024'],
             'name' => ['required', 'string', 'max:30'],
             'description' => ['nullable', 'string', 'max:100'],
             'status' => ['required', 'integer', new Enum(\App\Enums\Status::class)]

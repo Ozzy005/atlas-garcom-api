@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property integer $id
- * @property string $image
  * @property string $name
  * @property string $description
+ * @property float $cost_price
+ * @property float $price
  * @property \App\Enums\Status $status
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
@@ -20,40 +20,31 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \App\Models\Tenant $tenant
  */
 
-class Category extends Model
+class Complement extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'image',
         'name',
         'description',
+        'cost_price',
+        'price',
         'status'
     ];
 
     protected $casts = [
         'id' => 'integer',
-        'image' => 'string',
         'name' => 'string',
         'description' => 'string',
+        'cost_price' => 'float',
+        'price' => 'float',
         'status' => \App\Enums\Status::class,
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
 
-    protected $appends = [
-        'image_url'
-    ];
-
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
-    }
-
-    public function imageUrl(): Attribute
-    {
-        return new Attribute(
-            get: fn () => !empty($this->image) ? asset('storage/' . $this->image) : asset('storage/images/no-image.png')
-        );
     }
 }
