@@ -34,6 +34,7 @@ class MeasurementUnitController extends BaseController
                 $query->where('name', 'like', '%' . $request->search . '%')
                     ->orWhere('initials', 'like', '%' . $request->search . '%');
             })
+            ->when($request->filled('status'), fn (Builder $query) => $query->where('status', $request->status))
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
                 fn (Builder $query) => $query->orderBy(

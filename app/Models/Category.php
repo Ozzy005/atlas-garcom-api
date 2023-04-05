@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\Tenant;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Category extends Model
 {
-    use HasFactory;
+    use HasFactory, Tenant;
 
     protected $fillable = [
         'image',
@@ -55,5 +57,10 @@ class Category extends Model
         return new Attribute(
             get: fn () => !empty($this->image) ? asset('storage/' . $this->image) : asset('storage/images/no-image.png')
         );
+    }
+
+    public function scopeTenantQuery(Builder $query): void
+    {
+        $query->where('tenant_id', $this->getTenantId());
     }
 }

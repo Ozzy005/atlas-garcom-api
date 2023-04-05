@@ -38,6 +38,7 @@ class UserController extends BaseController
                     ->orWhere('nif', 'like', '%' . removeMask($request->search) . '%')
                     ->orWhere('people.email', 'like', '%' . $request->search . '%');
             })
+            ->when($request->filled('status'), fn (Builder $query) => $query->where('status', $request->status))
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
                 fn (Builder $query) => $query->orderBy(

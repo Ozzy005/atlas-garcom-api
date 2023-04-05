@@ -16,7 +16,9 @@ return new class extends Migration
         Schema::create('complements', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('description');
+            $table->string('description')->nullable();
+            $table->foreignId('measurement_unit_id')->constrained();
+            $table->decimal('quantity', 12, 2)->default(0);
             $table->decimal('cost_price', 12, 2)->default(0);
             $table->decimal('price', 12, 2)->default(0);
             $table->foreignId('tenant_id')->constrained();

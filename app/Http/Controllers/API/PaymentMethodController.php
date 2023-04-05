@@ -34,6 +34,7 @@ class PaymentMethodController extends BaseController
                 $query->where('code', 'like', '%' . $request->search . '%')
                     ->orWhere('name', 'like', '%' . $request->search . '%');
             })
+            ->when($request->filled('status'), fn (Builder $query) => $query->where('status', $request->status))
             ->when(
                 $request->filled('sortBy') && $request->filled('descending'),
                 fn (Builder $query) => $query->orderBy(

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\API;
 
 use App\Exceptions\HttpException;
 use App\Models\Category;
-use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -33,6 +32,7 @@ class CategoryController extends BaseController
     public function index(Request $request): JsonResponse
     {
         $query = Category::query()
+            ->tenantQuery()
             ->when($request->filled('search'), function (Builder $query) use ($request) {
                 $query->where('name', 'like', '%' . $request->search . '%')
                     ->orWhere('description', 'like', '%' . $request->search . '%');
@@ -100,6 +100,7 @@ class CategoryController extends BaseController
     public function show(int $id): JsonResponse
     {
         $item = Category::query()
+            ->tenantQuery()
             ->findOrFail($id);
 
         return $this->sendResponse($item);
@@ -108,6 +109,7 @@ class CategoryController extends BaseController
     public function update(Request $request, int $id): JsonResponse
     {
         $item = Category::query()
+            ->tenantQuery()
             ->findOrFail($id);
 
         $validator = Validator::make(
@@ -173,6 +175,7 @@ class CategoryController extends BaseController
             DB::beginTransaction();
 
             $items = Category::query()
+                ->tenantQuery()
                 ->whereIn('id', $request->items)
                 ->get();
 
