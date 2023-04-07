@@ -26,7 +26,7 @@ class SignaturesTableSeeder extends Seeder
                     'discounted_price' => 0,
                     'total_price' => 89.99,
                     'due_days_ids' => [1, 2, 3, 4, 5],
-                    'modules_ids' => [2, 3]
+                    'modules_ids' => [2, 3, 4, 5, 6]
                 ]
             ];
 

@@ -70,7 +70,7 @@ class TenantsTableSeeder extends Seeder
                             $value['user'] + ['tenant_id' => $tenant->id]
                         );
 
-                    $user->assignRole(['categories', 'complements']);
+                    $user->assignRole(['categories', 'products', 'complements', 'users', 'roles']);
 
                     array_push($messages, "  {$tenant->id} - Tenant {$person->full_name} criado/atualizado.");
                 }

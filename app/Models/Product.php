@@ -8,22 +8,29 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property integer $id
  * @property string $image
  * @property string $name
  * @property string $description
- * @property \App\Enums\Status $status
+ * @property integer $category_id
  * @property integer $tenant_id
+ * @property \App\Enums\Status $status
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  *
- * @property string $image_url
  * @property \App\Models\Tenant $tenant
+ * @property \App\Models\Category $category
+ * @property \App\Models\ProductPrice $productPrices
+ * @property \App\Models\Complements $complements
+ * @property \Illuminate\Support\Collection  $permissions_ids
+ * @property string $image_url
  */
 
-class Category extends Model
+class Product extends Model
 {
     use HasFactory, Tenant;
 
@@ -31,6 +38,7 @@ class Category extends Model
         'image',
         'name',
         'description',
+        'category_id',
         'status'
     ];
 
@@ -39,19 +47,43 @@ class Category extends Model
         'image' => 'string',
         'name' => 'string',
         'description' => 'string',
-        'status' => \App\Enums\Status::class,
+        'category_id' => 'integer',
         'tenant_id' => 'integer',
+        'status' => \App\Enums\Status::class,
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
 
     protected $appends = [
-        'image_url'
+        'image_url',
+        'complements_ids'
     ];
+
+    public function complementsIds(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->relationLoaded('complements') ? $this->complements->pluck('id') : []
+        );
+    }
 
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function productPrices(): HasMany
+    {
+        return $this->hasMany(ProductPrice::class);
+    }
+
+    public function complements(): BelongsToMany
+    {
+        return $this->belongsToMany(Complement::class);
     }
 
     public function imageUrl(): Attribute

@@ -29,6 +29,9 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('categories', App\Http\Controllers\API\CategoryController::class)->except(['destroy']);
     Route::delete('categories', [App\Http\Controllers\API\CategoryController::class, 'destroy']);
 
+    Route::apiResource('products', App\Http\Controllers\API\ProductController::class)->except(['destroy']);
+    Route::delete('products', [App\Http\Controllers\API\ProductController::class, 'destroy']);
+
     Route::apiResource('complements', App\Http\Controllers\API\ComplementController::class)->except(['destroy']);
     Route::delete('complements', [App\Http\Controllers\API\ComplementController::class, 'destroy']);
 
@@ -59,6 +62,7 @@ Route::middleware('auth')->group(function () {
 Route::prefix('public')->group(function () {
     Route::get('signatures', [App\Http\Controllers\API\SignatureController::class, 'publicIndex']);
     Route::get('categories', [App\Http\Controllers\API\CategoryController::class, 'publicIndex']);
+    Route::get('products', [App\Http\Controllers\API\ProductController::class, 'publicIndex']);
     Route::get('complements', [App\Http\Controllers\API\ComplementController::class, 'publicIndex']);
     Route::get('due-days', [App\Http\Controllers\API\DueDayController::class, 'publicIndex']);
     Route::get('payment-methods', [App\Http\Controllers\API\PaymentMethodController::class, 'publicIndex']);

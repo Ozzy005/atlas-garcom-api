@@ -21,26 +21,8 @@ class RolesTableSeeder extends Seeder
                         'name' => 'administrator',
                         'description' => 'Administrador',
                         'type' => \App\Enums\RoleType::ROLE,
-                        'permissions' => [
-                            ['name', 'like', '%dashboard_%'],
-                            ['name', 'like', '%people_%'],
-                            ['name', 'like', '%tenants_%'],
-                            ['name', 'like', '%operational_%'],
-                            ['name', 'like', '%signatures_%'],
-                            ['name', 'like', '%due-days_%'],
-                            ['name', 'like', '%categories_%'],
-                            ['name', 'like', '%complements_%'],
-                            ['name', 'like', '%general_%'],
-                            ['name', 'like', '%payment-methods_%'],
-                            ['name', 'like', '%measurement-units_%'],
-                            ['name', 'like', '%ncms_%'],
-                            ['name', 'like', '%states_%'],
-                            ['name', 'like', '%cities_%'],
-                            ['name', 'like', '%management_%'],
-                            ['name', 'like', '%users_%'],
-                            ['name', 'like', '%roles_%'],
-                            ['name', 'like', '%permissions_%']
-                        ]
+                        'permissions' => [],
+                        'full-permissions' => true
                     ],
                     [
                         'id' => 2,
@@ -49,7 +31,8 @@ class RolesTableSeeder extends Seeder
                         'type' => \App\Enums\RoleType::MODULE,
                         'permissions' => [
                             ['name', 'like', '%categories_%']
-                        ]
+                        ],
+                        'full-permissions' => false
                     ],
                     [
                         'id' => 3,
@@ -58,25 +41,38 @@ class RolesTableSeeder extends Seeder
                         'type' => \App\Enums\RoleType::MODULE,
                         'permissions' => [
                             ['name', 'like', '%complements_%']
-                        ]
+                        ],
+                        'full-permissions' => false
                     ],
                     [
                         'id' => 4,
+                        'name' => 'products',
+                        'description' => 'Produtos',
+                        'type' => \App\Enums\RoleType::MODULE,
+                        'permissions' => [
+                            ['name', 'like', '%products_%']
+                        ],
+                        'full-permissions' => false
+                    ],
+                    [
+                        'id' => 5,
                         'name' => 'users',
                         'description' => 'Usuários',
                         'type' => \App\Enums\RoleType::MODULE,
                         'permissions' => [
                             ['name', 'like', '%users_%']
-                        ]
+                        ],
+                        'full-permissions' => false
                     ],
                     [
-                        'id' => 5,
+                        'id' => 6,
                         'name' => 'roles',
                         'description' => 'Atribuições',
                         'type' => \App\Enums\RoleType::MODULE,
                         'permissions' => [
                             ['name', 'like', '%roles_%']
-                        ]
+                        ],
+                        'full-permissions' => false
                     ]
                 ];
 
@@ -84,18 +80,22 @@ class RolesTableSeeder extends Seeder
 
                 foreach ($data as $value) {
                     $permissions = $value['permissions'];
+                    $fullPermissions = $value['full-permissions'];
                     unset($value['permissions']);
+                    unset($value['full-permissions']);
 
                     $permissions = Permission::query()
-                        ->where(function (Builder $query) use ($permissions) {
-                            foreach ($permissions  as $permission) {
-                                $query->orWhere($permission[0], $permission[1], $permission[2]);
-                            }
+                        ->when(!$fullPermissions, function (Builder $query) use ($permissions) {
+                            $query->where(function (Builder $query) use ($permissions) {
+                                foreach ($permissions  as $permission) {
+                                    $query->orWhere($permission[0], $permission[1], $permission[2]);
+                                }
+                            });
                         })
                         ->get();
 
                     $role = Role::query()
-                       ->updateOrCreate(
+                        ->updateOrCreate(
                             ['id' => $value['id']],
                             $value
                         );

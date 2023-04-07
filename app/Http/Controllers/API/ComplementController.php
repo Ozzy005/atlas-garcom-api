@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -56,8 +55,7 @@ class ComplementController extends BaseController
     {
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request),
-            $this->rules($request, null, true)
+            $this->rules($request)
         );
 
         try {
@@ -110,8 +108,7 @@ class ComplementController extends BaseController
 
         $validator = Validator::make(
             $request->all(),
-            $this->rules($request, $item->id),
-            $this->rules($request, null, true)
+            $this->rules($request, $item->id)
         );
 
         try {
@@ -171,7 +168,6 @@ class ComplementController extends BaseController
             $model = null;
             foreach ($items as $item) {
                 $model = $item;
-                Storage::disk('public')->delete($item->image);
                 $item->delete();
             }
 

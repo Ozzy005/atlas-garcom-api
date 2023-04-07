@@ -3,33 +3,33 @@
 namespace App\Models;
 
 use App\Traits\Tenant;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property integer $id
+ * @property integer $product_id
  * @property string $name
- * @property string $description
+ * @property integer $measurement_unit_id
+ * @property float $quantity
  * @property float $cost_price
  * @property float $price
  * @property \App\Enums\Status $status
- * @property integer $tenant_id
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  *
+ * @property \App\Models\Product $product
  * @property \App\Models\MeasurementUnit $measurementUnit
- * @property \App\Models\Tenant $tenant
  */
 
-class Complement extends Model
+class ProductPrice extends Model
 {
     use HasFactory, Tenant;
 
     protected $fillable = [
+        'product_id',
         'name',
-        'description',
         'measurement_unit_id',
         'quantity',
         'cost_price',
@@ -39,39 +39,24 @@ class Complement extends Model
 
     protected $casts = [
         'id' => 'integer',
+        'product_id' => 'integer',
         'name' => 'string',
-        'description' => 'string',
         'measurement_unit_id' => 'integer',
-        'quantity' =>   'float',
+        'quantity' => 'float',
         'cost_price' => 'float',
         'price' => 'float',
         'status' => \App\Enums\Status::class,
-        'tenant_id' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
 
-    public function tenant(): BelongsTo
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(Tenant::class);
+        return $this->belongsTo(Product::class);
     }
 
     public function measurementUnit(): BelongsTo
     {
         return $this->belongsTo(MeasurementUnit::class);
-    }
-
-    public function scopeTenantQuery(Builder $query): void
-    {
-        $query->where('complements.tenant_id', $this->getTenantId());
-    }
-
-    public function scopeMeasurementUnitQuery(Builder $query): void
-    {
-        $query->select(
-            'complements.*',
-            'measurement_units.name as measurement_unit'
-        )
-            ->join('measurement_units', 'measurement_units.id', '=', 'complements.measurement_unit_id');
     }
 }
